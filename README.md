@@ -1,6 +1,6 @@
 # Empire Specialized Haulers
 
-Version **0.4.0** adds nine T1 haulers for Amarr, Caldari and Minmatar to EveJS. The ships cover ore, mineral and planetary cargo. They have individual models, inventory and Ship Tree icons, native Mastery profiles inherited from their base hulls, and T1 blueprint definitions.
+Empire Specialized Haulers adds nine T1 haulers for Amarr, Caldari and Minmatar to EveJS. Each ship has its own model, inventory and Ship Tree icons, T1 blueprint, and native Mastery profile inherited from its base hull.
 
 | Empire | Ore | Mineral | Planetary |
 | --- | --- | --- | --- |
@@ -8,19 +8,23 @@ Version **0.4.0** adds nine T1 haulers for Amarr, Caldari and Minmatar to EveJS.
 | Caldari | Wolverine | Marten | Stoat |
 | Minmatar | Bison | Muskox | Caravan |
 
-## Install locally
+## Install and update
 
-The package targets **EveJS 261028.1**, the Launcher's **Native** backend, and **EVE client build 3396210**. The visual assets are required at runtime. This repository carries the loader, client code, catalog, and resource checksums. Build the installable ZIP with a local copy of the verified visual assets for this revision. The script reads the source mod's `visual-resources.json`, which can reference separate local resource directories. The stock EVE installation alone cannot supply the custom models.
+The package targets **EveJS 261028.1**, the Launcher's **Native** backend, and **EVE client build 3396210**.
 
-From the repository root, run Python 3 with the directory of the existing local mod package:
+Use the `EveJS-EmpireSpecializedHaulers-0.4.1.zip` installation package. Import it through **Launcher → Mods → Add ZIP**, or extract its contents into `mods/empire-specialized-haulers` with `evejs-launcher.mod.json` at the top of that folder. Enable the mod, restart the Game server and start a fresh EVE client. The ZIP starts with `loader.js.disabled`.
+
+The installation package includes all nine ship models under `art/native` and the inventory and Ship Tree icons under `art/icons`. Published install packages and update metadata are listed on [Releases](https://github.com/Delta007a/empire-specialized-haulers/releases). The Launcher update feed needs access to the release and its assets.
+
+## Build the ZIP locally
+
+Use Python 3 and an existing local copy of the mod's matching visual resources. Run from the repository root:
 
 ```powershell
 python tools/build-local-package.py '<EveJS directory>/mods/empire-specialized-haulers'
 ```
 
-The builder checks all 137 resources against the committed manifest and writes `dist/EmpireSpecializedHaulers-0.4.0-local.zip`. The ZIP bundles the verified local assets under relative paths and starts with the loader disabled. Keep this ZIP local because its art includes EVE-derived resources.
-
-Import the ZIP in EveJS Launcher and enable **Empire Specialized Haulers** on the selected Native installation. If replacing an installation with the same mod ID, follow the Launcher's replacement flow with the server stopped. Disable Tayra Client Canary before enabling this package. Start the game server and log in with a fresh client process.
+The builder checks all 137 resources against the committed manifest and writes `dist/EveJS-EmpireSpecializedHaulers-0.4.1.zip`. It accepts the verified 0.4.0 visual resources and relocates Wolverine into `art/native/ci2_w2` during packaging.
 
 ## Check the client
 

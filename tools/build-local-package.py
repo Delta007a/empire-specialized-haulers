@@ -5,10 +5,18 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import re
+import struct
 from zipfile import ZIP_DEFLATED, ZipFile
 
 
 ROOT = Path(__file__).resolve().parent.parent
+WOLVERINE_BLACK = "eh40:/ci2_w2/ci2_w2.black"
+WOLVERINE_GEOMETRY = "eh40:/ci2_w2/ci2_w2.gr2"
+LEGACY_WOLVERINE = {
+    WOLVERINE_BLACK: "wolfrt2:/ci2_w2.black",
+    WOLVERINE_GEOMETRY: "wolfrt2:/dx9/model/ship/caldari/hauler/ci2/ci2_w2.gr2",
+}
+LEGACY_BLACK_SHA256 = "d9f4ec4297be2205c902b3de9776e6f98f9734fe4323596b723a623752a18f3e"
 PACKAGE_FILES = (
     "README.md",
     "catalog.js",
@@ -17,7 +25,7 @@ PACKAGE_FILES = (
     "evejs-launcher.mod.json",
     "fleet.json",
     "install.js",
-    "loader.js.disabled",
+    "loader.js",
     "login-contract.json",
     "login-envelope.js",
     "visual-resources.json",
@@ -38,24 +46,57 @@ def resource_path(uri):
     return scheme, relative
 
 
+def relocate_wolverine_black(data):
+    if hashlib.sha256(data).hexdigest() != LEGACY_BLACK_SHA256:
+        raise ValueError("Unknown source for Wolverine's legacy BLACK resource.")
+    magic, version, table_length, count = struct.unpack_from("<IIIH", data)
+    end = 12 + table_length
+    strings = data[14:end].split(b"\0")
+    legacy_path = LEGACY_WOLVERINE[WOLVERINE_GEOMETRY].encode("ascii")
+    if (magic, version) != (0xB1ACF11E, 1) or not 14 < end < len(data):
+        raise ValueError("Invalid BLACK header.")
+    if strings[0] != b"EveSOFDataHull" or len(strings) != count + 1 or strings[-1] != b"":
+        raise ValueError("Invalid BLACK string table.")
+    if strings.count(legacy_path) != 1:
+        raise ValueError("Wolverine's original geometry reference is ambiguous.")
+    strings[strings.index(legacy_path)] = WOLVERINE_GEOMETRY.encode("ascii")
+    table = b"\0".join(strings)
+    # String indices and the serialized object stream remain identical.
+    return data[:8] + struct.pack("<IH", len(table) + 2, count) + table + data[end:]
+
+
+def read_asset(source, manifest, uri):
+    source_uri = uri
+    if uri not in manifest["files"]:
+        source_uri = LEGACY_WOLVERINE.get(uri, uri)
+        if source_uri not in manifest["files"]:
+            raise ValueError(f"Local resource is missing: {uri}")
+    scheme, relative = resource_path(source_uri)
+    data = (source / manifest["roots"][scheme] / relative).read_bytes()
+    if uri == WOLVERINE_BLACK and source_uri != uri:
+        return relocate_wolverine_black(data)
+    return data
+
+
 def build(source, output):
     manifest = read_json(ROOT / "visual-resources.json")
     local = read_json(source / "visual-resources.json")
-    if any(local[key] != manifest[key] for key in ("version", "build", "hulls", "files")):
-        raise ValueError("The local resource manifest does not match this release.")
+    if local["build"] != manifest["build"]:
+        raise ValueError("The local resource manifest targets a different client build.")
 
     output.parent.mkdir(parents=True, exist_ok=True)
     stream = output.open("xb")
     try:
         with stream, ZipFile(stream, "w", ZIP_DEFLATED, compresslevel=1) as package:
             for name in PACKAGE_FILES:
-                package.write(ROOT / name, name)
+                target = "loader.js.disabled" if name == "loader.js" else name
+                package.write(ROOT / name, target)
             for uri, entry in manifest["files"].items():
                 scheme, relative = resource_path(uri)
                 destination = PurePosixPath(manifest["roots"][scheme]) / relative
                 if destination.is_absolute() or ".." in destination.parts or destination.parts[0] != "art":
                     raise ValueError(f"Invalid package path: {destination}")
-                data = (source / local["roots"][scheme] / relative).read_bytes()
+                data = read_asset(source, local, uri)
                 if len(data) != entry["bytes"] or hashlib.sha256(data).hexdigest() != entry["sha256"]:
                     raise ValueError(f"Local resource size or SHA-256 differs: {uri}")
                 package.writestr(destination.as_posix(), data)
@@ -70,8 +111,9 @@ def main():
     parser.add_argument("source", type=Path, help="Local mod folder with the matching visual manifest")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    version = read_json(ROOT / "evejs-launcher.mod.json")["version"]
-    output = args.output or ROOT / "dist" / f"EmpireSpecializedHaulers-{version}-local.zip"
+    manifest = read_json(ROOT / "evejs-launcher.mod.json")
+    filename = manifest["updates"]["asset"].replace("{version}", manifest["version"])
+    output = args.output or ROOT / "dist" / filename
     try:
         build(args.source.resolve(), output.resolve())
     except (OSError, ValueError, KeyError) as error:

@@ -1,17 +1,16 @@
 {
-  "version": "0.4.0",
+  "version": "0.4.1",
   "build": 3396210,
   "roots": {
     "eh40": "art/native",
-    "ehico": "art/icons",
-    "wolfrt2": "art/wolverine"
+    "ehico": "art/icons"
   },
   "hulls": [
     {
       "alias": "ci2_w2",
       "stockAlias": "ci2_t1",
-      "geometryUri": "wolfrt2:/dx9/model/ship/caldari/hauler/ci2/ci2_w2.gr2",
-      "blackUri": "wolfrt2:/ci2_w2.black",
+      "geometryUri": "eh40:/ci2_w2/ci2_w2.gr2",
+      "blackUri": "eh40:/ci2_w2/ci2_w2.black",
       "textureUris": {}
     },
     {
@@ -136,11 +135,11 @@
     }
   ],
   "files": {
-    "wolfrt2:/ci2_w2.black": {
-      "sha256": "d9f4ec4297be2205c902b3de9776e6f98f9734fe4323596b723a623752a18f3e",
-      "bytes": 106928
+    "eh40:/ci2_w2/ci2_w2.black": {
+      "sha256": "ed330fb3a2a0cea89ad05463db253537f76bc41f3d4b6d1f8885d330decaaa91",
+      "bytes": 106898
     },
-    "wolfrt2:/dx9/model/ship/caldari/hauler/ci2/ci2_w2.gr2": {
+    "eh40:/ci2_w2/ci2_w2.gr2": {
       "sha256": "33b25b1fdd2eed5b1d68bfe8180e27e9726f848ac61bdec3f98ed899014dfe70",
       "bytes": 3909284
     },
