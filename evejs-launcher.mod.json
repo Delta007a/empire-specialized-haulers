@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 3,
+  "id": "empire-specialized-haulers",
+  "displayName": "Empire Specialized Haulers",
+  "version": "0.4.0",
+  "description": "Private T1 ore, mineral and planetary haulers with nine independent blueprints.",
+  "kind": "loader",
+  "supportedBackends": [
+    "native"
+  ],
+  "activation": {
+    "strategy": "loader_rename"
+  },
+  "restart": "game_server",
+  "compatibility": {
+    "evejsVersions": [
+      "261028.1"
+    ]
+  },
+  "loadBefore": [
+    "moonoreanomalies",
+    "droneclassbalance",
+    "soloprogressionbalance",
+    "fourmodeasteroidbelts",
+    "evejs-cpi"
+  ]
+}

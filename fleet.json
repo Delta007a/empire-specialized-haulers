@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "clientBuild": 3396210,
+  "version": "0.4.0",
+  "races": {
+    "caldari": [
+      1,
+      3342,
+      730,
+      495,
+      811,
+      84,
+      284
+    ],
+    "amarr": [
+      4,
+      3343,
+      732,
+      494,
+      809,
+      85,
+      285
+    ],
+    "minmatar": [
+      2,
+      3341,
+      527,
+      493,
+      814,
+      82,
+      282
+    ]
+  },
+  "roles": {
+    "ore": [
+      656,
+      991,
+      4287500,
+      {
+        "1556": 42000
+      },
+      [
+        1556
+      ]
+    ],
+    "mineral": [
+      654,
+      989,
+      3425000,
+      {
+        "1558": 50000,
+        "3136": 30000
+      },
+      [
+        1558,
+        3136
+      ]
+    ],
+    "planetary": [
+      655,
+      990,
+      6000000,
+      {
+        "1653": 45000,
+        "1646": 6000
+      },
+      [
+        1653
+      ]
+    ]
+  },
+  "ships": [
+    {
+      "name": "Wolverine",
+      "description": "The Wolverine is a specialized industrial vessel designed to support the vast mining operations of the Caldari State. Its twin reinforced ore bunkers provide secure storage for large quantities of raw materials, allowing mining corporations to maintain a steady flow of resources to their processing facilities.\n\nBuilt with efficiency and reliability in mind, the Wolverine favors practical engineering over unnecessary comforts. Its straightforward cargo handling systems have made it a dependable choice for industrial operations where every delay carries a cost.",
+      "stock": "Tayra",
+      "stockTypeID": 649,
+      "stockGraphicID": 52,
+      "stockAlias": "ci2_t1",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Tayra/ci2_t1.gr2",
+      "stockGr2Sha256": "6c3845e2b3897c428da20e9b8bc8a295bb479ea2971db37e9a42af4f8756ce0b",
+      "empire": "caldari",
+      "role": "ore",
+      "slots": [
+        2,
+        5,
+        3
+      ],
+      "alias": "ci2_w2",
+      "visual": {
+        "resourceManifest": "model-roundtrip/wolverine-032/candidate-manifest.json"
+      },
+      "typeID": 2000000001,
+      "graphicID": 2000000002,
+      "blueprintTypeID": 2000000200,
+      "effectID": 2000000400,
+      "messageBase": -2000010000
+    },
+    {
+      "name": "Marten",
+      "description": "The Marten is a specialized Caldari hauler designed for the transportation of refined minerals and harvested ice. Its cargo system features independently controlled compartments, allowing both types of materials to be transported without compromising their storage requirements.\n\nThe vessel is particularly valued by industrial corporations operating between mining installations, refineries, and manufacturing centers. Its emphasis on cargo separation and predictable handling reflects the Caldari approach to efficient industrial logistics.",
+      "stock": "Tayra",
+      "stockTypeID": 649,
+      "stockGraphicID": 52,
+      "stockAlias": "ci2_t1",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Tayra/ci2_t1.gr2",
+      "stockGr2Sha256": "6c3845e2b3897c428da20e9b8bc8a295bb479ea2971db37e9a42af4f8756ce0b",
+      "empire": "caldari",
+      "role": "mineral",
+      "slots": [
+        2,
+        5,
+        3
+      ],
+      "alias": "ci2_mt",
+      "visual": {
+        "blend": "design-exploration/Selected-Haulers-Finish-04/Marten/Marten-B.blend",
+        "sha256": "628eecdb3275c37fb42e5aaa28c7231cdbfe5ac0fb02a03baae504c4da86d65a",
+        "variant": "B"
+      },
+      "typeID": 2000000101,
+      "graphicID": 2000000301,
+      "blueprintTypeID": 2000000201,
+      "effectID": 2000000401,
+      "messageBase": -2000010016
+    },
+    {
+      "name": "Stoat",
+      "description": "The Stoat was developed to meet the demanding logistical requirements of planetary industry throughout the Caldari State. Equipped with dedicated storage for planetary commodities and command centers, it provides an efficient means of supplying established colonies and supporting new industrial settlements.\n\nIts compact arrangement of specialized cargo compartments allows operators to manage a wide variety of planetary products while maintaining the strict inventory controls favored by Caldari corporations.",
+      "stock": "Badger",
+      "stockTypeID": 648,
+      "stockGraphicID": 51,
+      "stockAlias": "ci1_t1",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Badger/ci1_t1.gr2",
+      "stockGr2Sha256": "f468f5a08d239412487bc9b35bcea1ecbf85df1780c6c5bdce6a5d0249edd30e",
+      "empire": "caldari",
+      "role": "planetary",
+      "slots": [
+        2,
+        5,
+        3
+      ],
+      "alias": "ci1_st",
+      "visual": {
+        "blend": "design-exploration/Selected-Haulers-Finish-04/Stoat/Stoat-A.blend",
+        "sha256": "bc73b4ef7cba651354317a9bb3033a1dd73a3a9acccd5a91b92657a5d16da957",
+        "variant": "A"
+      },
+      "typeID": 2000000102,
+      "graphicID": 2000000302,
+      "blueprintTypeID": 2000000202,
+      "effectID": 2000000402,
+      "messageBase": -2000010032
+    },
+    {
+      "name": "Tithe",
+      "description": "The Tithe serves the enormous resource demands of the Amarr Empire, transporting raw ore from mining operations to the foundries and industrial centers that sustain Imperial power. Its extensive enclosed mining hold is designed for the secure movement of bulk materials over long distances.\n\nThe ship's sturdy construction and carefully protected cargo spaces embody the Imperial preference for endurance and dependability. Across Amarr territories, vessels of this class are a familiar sight wherever the wealth of the Empire is drawn from the stars.",
+      "stock": "Bestower",
+      "stockTypeID": 1944,
+      "stockGraphicID": 1064,
+      "stockAlias": "ai1_t1",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Bestower/ai1_t1.gr2",
+      "stockGr2Sha256": "c1c0655a7aa45d8809a2a99368c4d54c42c0c7da6e5de14e38a84b5bcc6c55db",
+      "empire": "amarr",
+      "role": "ore",
+      "slots": [
+        2,
+        3,
+        5
+      ],
+      "alias": "ai1_th",
+      "visual": {
+        "blend": "design-exploration/Selected-Haulers-Finish-04/Tithe/Tithe-A.blend",
+        "sha256": "40e94e43576794bf1f5ddeec0ce602140e00a8d97e65965d33bd670118a7ec63",
+        "variant": "A"
+      },
+      "typeID": 2000000103,
+      "graphicID": 2000000303,
+      "blueprintTypeID": 2000000203,
+      "effectID": 2000000403,
+      "messageBase": -2000010048
+    },
+    {
+      "name": "Reliquary",
+      "description": "The Reliquary is an Imperial industrial transport dedicated to the safe movement of refined minerals and harvested ice. Its separate, carefully regulated cargo chambers protect valuable materials from contamination and environmental changes during extended journeys.\n\nDesigned for the demanding supply routes of the Amarr Empire, the Reliquary combines substantial specialized storage with the robust construction expected of Imperial vessels. It is particularly well suited to supplying major industrial installations and remote manufacturing centers.",
+      "stock": "Bestower",
+      "stockTypeID": 1944,
+      "stockGraphicID": 1064,
+      "stockAlias": "ai1_t1",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Bestower/ai1_t1.gr2",
+      "stockGr2Sha256": "c1c0655a7aa45d8809a2a99368c4d54c42c0c7da6e5de14e38a84b5bcc6c55db",
+      "empire": "amarr",
+      "role": "mineral",
+      "slots": [
+        2,
+        3,
+        5
+      ],
+      "alias": "ai1_rq",
+      "visual": {
+        "blend": "design-exploration/Selected-Haulers-Finish-04/Reliquary/Reliquary-B.blend",
+        "sha256": "6550f6bb2decdb6e3ec6038ceefa730f45f17f2522c06cc45a80733c1c3aacfa",
+        "variant": "B"
+      },
+      "typeID": 2000000104,
+      "graphicID": 2000000304,
+      "blueprintTypeID": 2000000204,
+      "effectID": 2000000404,
+      "messageBase": -2000010064
+    },
+    {
+      "name": "Steward",
+      "description": "The Steward plays an important role in maintaining the extensive network of planetary holdings throughout the Amarr Empire. Its specialized cargo facilities accommodate planetary commodities and command centers, enabling the transportation of both essential supplies and the infrastructure required to establish new colonies.\n\nImperial administrators value the vessel for its dependable operation and orderly cargo management. While rarely celebrated, ships of this class are indispensable to the continued prosperity of the Empire's distant possessions.",
+      "stock": "Sigil",
+      "stockTypeID": 19744,
+      "stockGraphicID": 2715,
+      "stockAlias": "ai2_t1",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Sigil/ai2_t1.gr2",
+      "stockGr2Sha256": "6020c9f194a889fd730d1413e2a8eb5aae689607c79f0ac21d26583bac5346b5",
+      "empire": "amarr",
+      "role": "planetary",
+      "slots": [
+        2,
+        3,
+        5
+      ],
+      "alias": "ai2_sw",
+      "visual": {
+        "blend": "design-exploration/Selected-Haulers-Finish-04/Steward/Steward-A.blend",
+        "sha256": "43aea215ab6baea0a6c27b39be32ccd140aeca9d19d45471cefbcf7106429de0",
+        "variant": "A"
+      },
+      "typeID": 2000000105,
+      "graphicID": 2000000305,
+      "blueprintTypeID": 2000000205,
+      "effectID": 2000000405,
+      "messageBase": -2000010080
+    },
+    {
+      "name": "Bison",
+      "description": "The Bison is a heavy industrial hauler developed to support mining operations across the scattered territories of the Minmatar Republic. Its reinforced ore storage compartments and rugged cargo handling systems allow it to transport substantial quantities of raw materials between remote extraction sites and processing facilities.\n\nDesigned to operate with limited support infrastructure, the Bison has earned a reputation for durability and ease of maintenance. Its practical construction makes it especially popular among independent miners and industrial crews working far from established trade routes.",
+      "stock": "Mammoth",
+      "stockTypeID": 652,
+      "stockGraphicID": 309,
+      "stockAlias": "mi2_t1",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Mammoth/mi2_t1.gr2",
+      "stockGr2Sha256": "a439cd0dfcd1dec1596debf7fff87db62c00e2787e397c18fd371351f2065511",
+      "empire": "minmatar",
+      "role": "ore",
+      "slots": [
+        2,
+        4,
+        4
+      ],
+      "alias": "mi2_bn",
+      "visual": {
+        "blend": "design-exploration/Selected-Haulers-Finish-04/Bison/Bison-B.blend",
+        "sha256": "1bf286ef883b4122d713e943e14737ce10d5d4d320b7c9b065076469e5a1fc54",
+        "variant": "B"
+      },
+      "typeID": 2000000106,
+      "graphicID": 2000000306,
+      "blueprintTypeID": 2000000206,
+      "effectID": 2000000406,
+      "messageBase": -2000010096
+    },
+    {
+      "name": "Muskox",
+      "description": "The Muskox is a specialized Minmatar transport equipped with dedicated holds for refined minerals and harvested ice. Its reinforced cargo compartments are designed to withstand the demanding conditions of industrial transport, while separate storage systems ensure that each type of material is carried under suitable conditions.\n\nThe ship is widely appreciated for its uncomplicated maintenance requirements and reliable cargo handling. These qualities make it particularly useful to independent industrial operators and remote settlements throughout the Republic.",
+      "stock": "Hoarder",
+      "stockTypeID": 651,
+      "stockGraphicID": 308,
+      "stockAlias": "mi1_t1",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Hoarder/mi1_t1.gr2",
+      "stockGr2Sha256": "6e1f4244a50246ea8dba7be24bac5108e27e202a51a16a6f2b86d92463dd5172",
+      "empire": "minmatar",
+      "role": "mineral",
+      "slots": [
+        3,
+        4,
+        3
+      ],
+      "alias": "mi1_mx",
+      "visual": {
+        "blend": "design-exploration/Selected-Haulers-Finish-04/Muskox/Muskox-A.blend",
+        "sha256": "62b3271a4909ee4fe4196106dba22662ea64e03271280cf1ecf69dad361c9d63",
+        "variant": "A"
+      },
+      "typeID": 2000000107,
+      "graphicID": 2000000307,
+      "blueprintTypeID": 2000000207,
+      "effectID": 2000000407,
+      "messageBase": -2000010112
+    },
+    {
+      "name": "Caravan",
+      "description": "The Caravan is a specialized planetary logistics vessel intended to connect the scattered colonies and industrial settlements of the Minmatar Republic. Its cargo system provides dedicated storage for planetary commodities and command centers, supporting both the continued operation of established colonies and the development of new ones.\n\nDesigned around flexibility and ease of maintenance, the Caravan is well suited to independent crews operating along irregular supply routes. For many remote communities, ships of this class provide a vital link to the wider Republic.",
+      "stock": "Wreathe",
+      "stockTypeID": 653,
+      "stockGraphicID": 310,
+      "stockAlias": "mi3_t1",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Wreathe/mi3_t1.gr2",
+      "stockGr2Sha256": "655408bdc66edcfaac862fe3e4f03c7ccbc53670fb89adcaefba4184cb14551a",
+      "empire": "minmatar",
+      "role": "planetary",
+      "slots": [
+        2,
+        4,
+        4
+      ],
+      "alias": "mi3_cv",
+      "visual": {
+        "blend": "design-exploration/Selected-Haulers-Finish-04/Caravan/Caravan-A.blend",
+        "sha256": "53ffe835f56ae7a1963e43fd654c1501a1efe5c465fa8157fbc186f6d4122b05",
+        "variant": "A"
+      },
+      "typeID": 2000000108,
+      "graphicID": 2000000308,
+      "blueprintTypeID": 2000000208,
+      "effectID": 2000000408,
+      "messageBase": -2000010128
+    }
+  ]
+}
