@@ -85,10 +85,9 @@ function transformHandshake(baseline, incoming, expected) {
   }
   const {match} = inspectCall(incoming);
   demand(incoming.split(RESULT).length === 2 && !incoming.includes(OWNER), "ambiguous login reply ownership");
+  // The receipt diagnoses client data loading. Native authentication owns login.
   return incoming.replace(match[0], match[0].replace(match[2], OWNER+".compose(this, "+match[2]+")"))
-    .replace(RESULT, RESULT+"\n    if ("+OWNER+".receive(this, decoded) !== "+JSON.stringify(READY)+") {\n" +
-      "      this._sendTransportClose(\"LoginAuthFailed\", {}, \"Empire Haulers client catalog unavailable. Close the client and check the server log.\");\n" +
-      "      return { done: false };\n    }");
+    .replace(RESULT, RESULT+"\n    "+OWNER+".receive(this, decoded);");
 }
 
 function createDelivery(program, {nonce = () => randomBytes(12).toString("hex"), log = console.log} = {}) {
