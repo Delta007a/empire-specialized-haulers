@@ -8,7 +8,7 @@ Requires **Python 3.11 or newer** and an existing market database.
 
    | File | Result |
    | --- | --- |
-   | `Market-Normal.cmd` | Ships and blueprints at the existing selling locations of their original hulls. A Jita-only market stays Jita-only. |
+   | `Market-Normal.cmd` | Ships and blueprints at the existing selling locations of their original hulls, including BUY orders where the corresponding original has them. A Jita-only market stays Jita-only. |
    | `Market-Hardcore.cmd` | Blueprints only, at existing original BPO sellers owned by NPC corporations of the ship's faction. |
 
 4. Wait for **`APPLIED normal`** or **`APPLIED hardcore`**, followed by **`Finished successfully`**. Press any key to close the window.
@@ -21,5 +21,7 @@ The script reads `storage.database_path` from this server's `externalservices/ma
 If Python is missing, install Python 3.11 or newer from python.org, enable **Add python.exe to PATH** if offered, and run the `.cmd` file again. If the database is missing, generate your market file first. If the database is locked, stop Market before retrying. The console stays open so you can read any error.
 
 Repeat runs preserve purchases, remaining quantities, existing prices and player orders. After regenerating the market database, run the desired mode again.
+
+**Already used 0.4.3?** Update to 0.4.4 and run `Market-Normal.cmd` again. It adds the missing BUY orders while preserving existing SELL prices and stock. Blueprint BUY orders are added only if the original BPO has them.
 
 See [the detailed guide](tools/MARKET-SEED.md) for pricing, station mapping and optional command-line controls, or [the Russian step-by-step instructions](MARKET-SETUP-RU.txt).

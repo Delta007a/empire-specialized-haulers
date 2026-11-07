@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.4
+
+- Fixed missing NPC BUY orders in market setup. Normal mode now adds BUY demand at the selected selling locations when the corresponding original hull or BPO has a seeded BUY order there.
+- BUY prices follow the Gallente analog's BUY offers separately from SELL prices. If the analog has no BUY offers, the script uses its SELL price and the original item's BUY/SELL price ratio.
+- Existing 0.4.3 markets can be repaired by running `Market-Normal.cmd` again after updating. Existing SELL prices and stock are preserved; repeat runs preserve remaining quantities on both sides.
+- Blueprint BUY orders are added only when the original BPO has them. Hardcore remains restricted to BPOs and removes the mod's seeded hull SELL and BUY orders; player orders and unrelated NPC orders are preserved.
+- Updated the reports, summary caches and English/Russian instructions to cover both order sides.
+
+Validated with 27 market-tool tests and both native login checks. On a temporary copy of the configured market file, the repair added 45 BUY orders at 5,731,458.35 ISK while preserving all 90 existing SELL offers. Repeated application, Jita-only selection, hardcore switching and SQLite integrity checks passed.
+
 ## 0.4.3
 
 - Added market setup scripts to the mod installation ZIP. Double-click `Market-Normal.cmd` or `Market-Hardcore.cmd` in the installed mod folder; the database path is resolved from that server's Market configuration.

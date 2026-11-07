@@ -84,8 +84,7 @@ def check_schema(conn):
         require_fields(conn, "market_orders", {"type_id", "region_id", "station_id", "price",
                        "vol_remaining", "bid", "state", "source"})
     if columns(conn, "seed_buy_orders"):
-        require_fields(conn, "seed_buy_orders", {"type_id", "region_id", "solar_system_id",
-                       "station_id", "price", "quantity"})
+        require_fields(conn, "seed_buy_orders", STOCK_FIELDS)
 
 
 def positive_price(value):
@@ -96,14 +95,15 @@ def positive_price(value):
         return None
 
 
-def price_references(stock, types, role_ids):
+def price_references(stock, types, role_ids, catalog_fallback=True):
     references = {}
     for type_id in role_ids:
         if type_id not in types:
             raise ValueError(f"Missing Gallente market template {type_id}")
         local = {r["station_id"]: positive_price(r["price"]) for r in stock[type_id]
                  if positive_price(r["price"]) is not None}
-        fallback = median(list(local.values())) if local else positive_price(types[type_id]["base_price"])
+        fallback = median(list(local.values())) if local else (
+            positive_price(types[type_id]["base_price"]) if catalog_fallback else None)
         references[type_id] = (local, fallback, "median Gallente seed price across this database"
                                if local else "Gallente base_price (no seed offers)")
     return references
@@ -119,6 +119,24 @@ def reference_price(type_id, station_id, references):
     return float(price.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)), source
 
 
+def buy_price(role_id, original_id, station_id, original_buy, buy_references,
+              sell_references, original_sell_references):
+    if buy_references[role_id][1] is not None:
+        price, source = reference_price(role_id, station_id, buy_references)
+        return price, source.replace("seed", "BUY seed")
+    # Preserve the file's original bid/ask spread when its Gallente analog has no bids.
+    gallente_sell, _ = reference_price(role_id, station_id, sell_references)
+    original_sell, _ = reference_price(original_id, station_id, original_sell_references)
+    bid = positive_price(original_buy["price"])
+    if bid is None:
+        raise ValueError(f"No usable original BUY price for type {original_id}")
+    price = (Decimal(str(gallente_sell)) * bid / Decimal(str(original_sell))).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP)
+    if price <= 0:
+        raise ValueError(f"Calculated BUY price for type {role_id} is not positive")
+    return float(price), "Gallente SELL price x original BUY/SELL ratio (no Gallente BUY offers)"
+
+
 def make_plan(conn, fleet, npc_owners, mode="normal", station_ids=()):
     check_schema(conn)
     owned = {i for ship in fleet["ships"] for i in (ship["typeID"], ship["blueprintTypeID"])}
@@ -132,14 +150,25 @@ def make_plan(conn, fleet, npc_owners, mode="normal", station_ids=()):
         stock[row["type_id"]].append(dict(row))
     stock_at = {type_id: {r["station_id"]: r for r in rows} for type_id, rows in stock.items()}
     references = price_references(stock, types, {i for role in fleet["roles"].values() for i in role[:2]})
+    buy_stock = defaultdict(list)
+    has_buys = bool(columns(conn, "seed_buy_orders"))
+    if has_buys:
+        for row in conn.execute(f"SELECT * FROM seed_buy_orders WHERE initial_quantity > 0 AND type_id IN ({placeholders})", tuple(needed)):
+            buy_stock[row["type_id"]].append(dict(row))
+    buy_at = {type_id: {r["station_id"]: r for r in rows} for type_id, rows in buy_stock.items()}
+    buy_references = price_references(buy_stock, types,
+        {i for role in fleet["roles"].values() for i in role[:2]}, catalog_fallback=False)
+    original_sell_references = price_references(stock, types, set(NATIVE_BLUEPRINTS) | set(NATIVE_BLUEPRINTS.values()))
     stations = {r["station_id"]: r["station_name"] for r in
                 conn.execute("SELECT station_id, station_name FROM stations")}
     if set(station_ids) - stations.keys():
         raise ValueError("Requested station is absent from the market database")
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
-    catalog, offers, warnings = [], [], []
+    catalog, offers, buy_offers, warnings = [], [], [], []
     current = {(r["station_id"], r["type_id"]): dict(r) for r in conn.execute(
         "SELECT * FROM seed_stock WHERE type_id IN (" + ",".join("?" for _ in owned) + ")", tuple(owned))}
+    current_buys = {(r["station_id"], r["type_id"]): dict(r) for r in conn.execute(
+        "SELECT * FROM seed_buy_orders WHERE type_id IN (" + ",".join("?" for _ in owned) + ")", tuple(owned))} if has_buys else {}
     for ship in fleet["ships"]:
         role_ship, role_bp = fleet["roles"][ship["role"]][:2]
         base_ship, base_bp = ship["stockTypeID"], NATIVE_BLUEPRINTS[ship["stockTypeID"]]
@@ -187,12 +216,28 @@ def make_plan(conn, fleet, npc_owners, mode="normal", station_ids=()):
                     row, source = existing, "existing mod offer preserved"
                 offers.append({"row": row, "new": existing is None, "name": ship["name"] + (" Blueprint" if is_bp else ""),
                                "stationName": stations.get(station_id, str(station_id)), "anchorTypeID": anchor_id,
-                               "priceTypeID": price_id, "priceSource": source})
+                               "priceTypeID": price_id, "priceSource": source, "orderSide": "SELL"})
+                original_id = base_bp if is_bp else base_ship
+                original_buy = buy_at.get(original_id, {}).get(station_id)
+                if original_buy is not None:
+                    existing_buy = current_buys.get((station_id, target_id))
+                    if existing_buy:
+                        buy_row, buy_source = existing_buy, "existing mod BUY offer preserved"
+                    else:
+                        price, buy_source = buy_price(price_id, original_id, station_id, original_buy,
+                                                     buy_references, references, original_sell_references)
+                        buy_row = dict(original_buy)
+                        buy_row.update(type_id=target_id, price=price, quantity=original_buy["initial_quantity"], updated_at=stamp)
+                    buy_offers.append({"row": buy_row, "new": existing_buy is None, "name": ship["name"] + (" Blueprint" if is_bp else ""),
+                                       "stationName": stations.get(station_id, str(station_id)), "anchorTypeID": original_id,
+                                       "priceTypeID": price_id, "priceSource": buy_source, "orderSide": "BUY"})
     if not offers:
         raise ValueError("No matching base hauler sellers found for this mode/station selection; nothing changed")
     wanted = {(r["row"]["station_id"], r["row"]["type_id"]) for r in offers}
-    return {"mode": mode, "catalog": catalog, "offers": offers,
+    wanted_buys = {(r["row"]["station_id"], r["row"]["type_id"]) for r in buy_offers}
+    return {"mode": mode, "catalog": catalog, "offers": offers, "buyOffers": buy_offers,
             "remove": [r for key, r in current.items() if key not in wanted], "warnings": warnings,
+            "removeBuys": [r for key, r in current_buys.items() if key not in wanted_buys],
             "ownedTypeIDs": sorted(owned)}
 
 
@@ -236,11 +281,13 @@ def apply_plan(conn, plan):
     for entry in plan["catalog"]:
         if entry["new"]:
             insert_row(conn, "market_types", entry["row"])
-    for row in plan["remove"]:
-        conn.execute("DELETE FROM seed_stock WHERE station_id=? AND type_id=?", (row["station_id"], row["type_id"]))
-    for entry in plan["offers"]:
-        if entry["new"]:
-            insert_row(conn, "seed_stock", entry["row"])
+    for table, removal_key, offers_key in (("seed_stock", "remove", "offers"),
+                                           ("seed_buy_orders", "removeBuys", "buyOffers")):
+        for row in plan[removal_key]:
+            conn.execute(f"DELETE FROM {table} WHERE station_id=? AND type_id=?", (row["station_id"], row["type_id"]))
+        for entry in plan[offers_key]:
+            if entry["new"]:
+                insert_row(conn, table, entry["row"])
     refresh_summaries(conn, plan["ownedTypeIDs"])
 
 
@@ -293,18 +340,22 @@ def main():
         parser.exit(1, f"Cannot seed market: {error}\n")
     new_types = sum(e["new"] for e in plan["catalog"])
     new_offers = sum(e["new"] for e in plan["offers"])
-    print(f"{'APPLIED' if args.apply else 'PREVIEW'} {args.mode}: {new_types} new types, {new_offers} new sell offers, "
-          f"{len(plan['offers']) - new_offers} preserved, {len(plan['remove'])} obsolete mod seed offers removed")
+    new_buys = sum(e["new"] for e in plan["buyOffers"])
+    print(f"{'APPLIED' if args.apply else 'PREVIEW'} {args.mode}: {new_types} new types, {new_offers} new SELL offers, "
+          f"{new_buys} new BUY offers, {len(plan['offers']) + len(plan['buyOffers']) - new_offers - new_buys} preserved, "
+          f"{len(plan['remove']) + len(plan['removeBuys'])} obsolete mod seed offers removed")
     groups = defaultdict(list)
-    for entry in plan["offers"]:
-        groups[entry["name"]].append(entry)
-    for name, entries in groups.items():
+    for entry in plan["offers"] + plan["buyOffers"]:
+        groups[(entry["name"], entry["orderSide"])].append(entry)
+    for (name, side), entries in groups.items():
         prices = [e["row"]["price"] for e in entries]
-        print(f"  {name}: {len(entries)} station(s), {min(prices):,.2f}..{max(prices):,.2f} ISK")
+        print(f"  {name} {side}: {len(entries)} station(s), {min(prices):,.2f}..{max(prices):,.2f} ISK")
     for warning in plan["warnings"]:
         print("NOTE:", warning)
     if any("base_price" in e["priceSource"] for e in plan["offers"]):
         print("NOTE: Some Gallente analogs have no seed offers; their catalog base_price was used.")
+    if any("no Gallente BUY" in e["priceSource"] for e in plan["buyOffers"]):
+        print("NOTE: Some Gallente analogs have no BUY offers; their SELL prices and the original BUY/SELL ratio were used.")
     if args.report:
         try:
             args.report.write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")

@@ -80,6 +80,19 @@ class MarketSeedTests(unittest.TestCase):
         self.conn.execute("INSERT INTO seed_stock VALUES(?,?,?,?,?,?,?,?,1,'original')",
                           (station, system, constellation, region, type_id, price, quantity, quantity))
 
+    def add_buy(self, type_id, station, price=10000, quantity=40):
+        system, constellation, region = LOCATIONS[station]
+        self.conn.execute("INSERT INTO seed_buy_orders VALUES(?,?,?,?,?,?,?,?,1,'original buy')",
+                          (station, system, constellation, region, type_id, price, quantity, quantity))
+
+    def hull_buys(self, *stations):
+        for station in stations:
+            for type_id in seed.NATIVE_BLUEPRINTS:
+                self.add_buy(type_id, station, 50000)
+            for i, role in enumerate(("ore", "mineral", "planetary")):
+                self.add_buy(FLEET["roles"][role][0], station, 1000000 + i * 100000)
+        self.conn.commit()
+
     def native_hulls(self, *stations):
         for station in stations:
             for type_id in seed.NATIVE_BLUEPRINTS:
@@ -214,23 +227,25 @@ class MarketSeedTests(unittest.TestCase):
         self.assertEqual(self.rows("manifest"), before_manifest)
         self.assertEqual(self.conn.execute('SELECT * FROM region_summaries WHERE type_id=34').fetchall(), unrelated)
 
-    def test_switch_to_hardcore_removes_mod_seed_hulls_but_preserves_player_orders_and_buys(self):
+    def test_switch_to_hardcore_removes_mod_hull_bids_preserves_player_and_unrelated_orders(self):
         self.native_hulls(JITA, AMARR, RENS)
         self.native_bpos(JITA, AMARR, RENS)
         seed.run(self.db, apply=True)
         self.conn.execute("INSERT INTO market_orders VALUES(1,42,10000002,?,2000000001,900,3,0,'open','player')", (JITA,))
         self.conn.execute("INSERT INTO market_orders VALUES(2,42,10000002,?,2000000001,700,2,1,'open','player')", (JITA,))
         self.conn.execute("INSERT INTO seed_buy_orders VALUES(?,30000142,20000020,10000002,2000000001,800,4,4,1,'keep')", (JITA,))
+        self.add_buy(34, JITA, 3, 100)
         self.conn.commit()
-        orders, buys = self.rows("market_orders"), self.rows("seed_buy_orders")
+        orders = self.rows("market_orders")
+        unrelated_buys = [r for r in self.rows("seed_buy_orders") if r[4] not in OWNED]
         seed.run(self.db, "hardcore", apply=True)
         self.assertEqual(len(self.mod_stock()), 9)
         self.assertEqual(self.rows("market_orders"), orders)
-        self.assertEqual(self.rows("seed_buy_orders"), buys)
+        self.assertEqual(self.rows("seed_buy_orders"), unrelated_buys)
         region = self.conn.execute('SELECT best_ask_price,total_ask_quantity,best_bid_price,total_bid_quantity FROM region_summaries WHERE region_id=10000002 AND type_id=2000000001').fetchone()
-        self.assertEqual(region, (900, 3, 800, 6))
+        self.assertEqual(region, (900, 3, 700, 2))
         system = self.conn.execute('SELECT best_ask_price,total_ask_quantity,best_bid_price,total_bid_quantity FROM system_seed_summaries WHERE solar_system_id=30000142 AND type_id=2000000001').fetchone()
-        self.assertEqual(system, (None, 0, 800, 4))
+        self.assertIsNone(system)
 
     def test_station_override_removes_only_outside_mod_seed_offers(self):
         self.native_hulls(JITA, AMARR)
@@ -302,7 +317,7 @@ class MarketSeedTests(unittest.TestCase):
         result = subprocess.run([sys.executable, str(mod/'tools/seed-market.py')],
                                 cwd=self.tmp.name, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('PREVIEW normal: 18 new types, 18 new sell offers', result.stdout)
+        self.assertIn('PREVIEW normal: 18 new types, 18 new SELL offers', result.stdout)
         with closing(sqlite3.connect(target)) as c:
             self.assertIsNone(c.execute('SELECT 1 FROM seed_stock WHERE type_id=2000000001').fetchone())
 
@@ -327,6 +342,7 @@ class MarketSeedTests(unittest.TestCase):
         self.native_hulls(JITA, AMARR, RENS)
         self.native_bpos(JITA, AMARR, RENS)
         self.gallente(JITA)
+        self.hull_buys(JITA, AMARR, RENS)
         mod, target = self.installation('[storage]\ndatabase_path = "data/generated/market.sqlite"\n')
         for name, mode, expected in (("Market-Normal.cmd", "normal", 54), ("Market-Hardcore.cmd", "hardcore", 9)):
             result = subprocess.run(['cmd.exe', '/d', '/c', str(mod/name)], input='\n',
@@ -338,7 +354,112 @@ class MarketSeedTests(unittest.TestCase):
                 count = c.execute('SELECT count(*) FROM seed_stock WHERE type_id IN (' +
                                   ','.join('?' for _ in OWNED) + ')', tuple(OWNED)).fetchone()[0]
                 self.assertEqual(count, expected)
+                buy_count = c.execute('SELECT count(*) FROM seed_buy_orders WHERE type_id IN (' +
+                                      ','.join('?' for _ in OWNED) + ')', tuple(OWNED)).fetchone()[0]
+                self.assertEqual(buy_count, 27 if mode == 'normal' else 0)
         self.assertFalse(self.mod_stock())
+
+    def test_normal_copies_buy_side_with_gallente_bid_price_and_original_demand(self):
+        self.native_hulls(JITA)
+        self.gallente(JITA)
+        self.hull_buys(JITA)
+        plan = seed.run(self.db, apply=True)
+        self.assertEqual(len(plan['offers']), 18)
+        self.assertEqual(len(plan['buyOffers']), 9)
+        for entry in plan['buyOffers']:
+            self.assertEqual(entry['orderSide'], 'BUY')
+            price = self.conn.execute('SELECT price FROM seed_buy_orders WHERE type_id=? AND station_id=?',
+                                      (entry['priceTypeID'], JITA)).fetchone()[0]
+            self.assertEqual(entry['row']['price'], price)
+            self.assertEqual(entry['row']['quantity'], 40)
+            self.assertIn('BUY seed', entry['priceSource'])
+        summary = self.conn.execute('SELECT best_ask_price,best_bid_price,total_bid_quantity FROM region_summaries '
+                                    'WHERE type_id=2000000001 AND region_id=10000002').fetchone()
+        self.assertEqual(summary, (7000000, 1000000, 40))
+
+    def test_buy_prices_use_remote_gallente_median_or_original_spread(self):
+        self.native_hulls(JITA)
+        self.gallente(JITA)
+        self.conn.execute('UPDATE seed_stock SET price=4000000 WHERE type_id=649')
+        self.add_buy(649, JITA, 1000000)
+        self.add_buy(656, AMARR, 2000000)
+        self.add_buy(656, RENS, 4000000)
+        self.conn.commit()
+        plan = seed.run(self.db)
+        ore = next(e for e in plan['buyOffers'] if e['name'] == 'Wolverine')
+        mineral = next(e for e in plan['buyOffers'] if e['name'] == 'Marten')
+        self.assertEqual(ore['row']['price'], 3000000)
+        self.assertIn('median', ore['priceSource'])
+        self.assertEqual(mineral['row']['price'], 2000000)
+        self.assertIn('original BUY/SELL ratio', mineral['priceSource'])
+
+    def test_upgrade_from_sell_only_adds_missing_bids_preserves_both_sides_after_trades(self):
+        self.native_hulls(JITA)
+        self.gallente(JITA)
+        seed.run(self.db, apply=True)
+        self.conn.execute('UPDATE seed_stock SET quantity=0,price=123 WHERE type_id=2000000001')
+        self.conn.commit()
+        previous_sells = self.rows('seed_stock')
+        self.hull_buys(JITA)
+        upgrade = seed.run(self.db, apply=True)
+        self.assertFalse(any(e['new'] for e in upgrade['offers']))
+        self.assertEqual(sum(e['new'] for e in upgrade['buyOffers']), 9)
+        self.assertEqual(self.rows('seed_stock'), previous_sells)
+        self.conn.execute('UPDATE seed_buy_orders SET quantity=0,price=456 WHERE type_id=2000000001')
+        self.conn.commit()
+        previous_buys = self.rows('seed_buy_orders')
+        repeat = seed.run(self.db, apply=True)
+        self.assertFalse(any(e['new'] for e in repeat['buyOffers']))
+        self.assertEqual(self.rows('seed_buy_orders'), previous_buys)
+
+    def test_buy_side_does_not_expand_outside_selected_hub_or_invent_original_bids(self):
+        self.native_hulls(JITA, AMARR)
+        self.gallente(JITA)
+        self.hull_buys(AMARR)
+        for role in FLEET['roles'].values():
+            self.add_buy(role[0], JITA)
+        self.conn.commit()
+        plan = seed.run(self.db, station_ids=[JITA])
+        self.assertEqual(len(plan['offers']), 18)
+        self.assertFalse(plan['buyOffers'])
+
+    def test_bpo_buy_orders_follow_original_bpos_in_normal_and_hardcore(self):
+        self.native_hulls(JITA, AMARR, RENS)
+        self.native_bpos(JITA, AMARR, RENS)
+        self.gallente(JITA)
+        self.hull_buys(JITA, AMARR, RENS)
+        self.add_buy(984, JITA, 10000)
+        self.add_buy(1945, AMARR, 10000)
+        self.add_buy(991, JITA, 200000)
+        self.add_buy(989, JITA, 300000)
+        self.conn.commit()
+        normal = seed.run(self.db, apply=True)
+        self.assertEqual(len(normal['buyOffers']), 31)
+        hardcore = seed.run(self.db, 'hardcore', apply=True)
+        self.assertEqual(len(hardcore['buyOffers']), 4)
+        self.assertTrue(all(e['name'].endswith(' Blueprint') for e in hardcore['buyOffers']))
+        self.assertEqual(len(hardcore['removeBuys']), 27)
+
+    def test_failed_buy_insert_rolls_back_catalog_sells_and_buys(self):
+        self.native_hulls(JITA)
+        self.gallente(JITA)
+        self.hull_buys(JITA)
+        self.conn.execute("CREATE TRIGGER reject_new_bid BEFORE INSERT ON seed_buy_orders "
+                          "WHEN NEW.type_id=2000000108 BEGIN SELECT RAISE(ABORT,'bid fixture failure'); END")
+        self.conn.commit()
+        before = list(self.conn.iterdump())
+        with self.assertRaisesRegex(sqlite3.IntegrityError, 'bid fixture failure'):
+            seed.run(self.db, apply=True)
+        self.assertEqual(list(self.conn.iterdump()), before)
+
+    def test_incomplete_buy_schema_is_rejected_before_writes(self):
+        self.native_hulls(JITA)
+        self.conn.execute('ALTER TABLE seed_buy_orders DROP COLUMN initial_quantity')
+        self.conn.commit()
+        before = self.rows('seed_stock')
+        with self.assertRaisesRegex(ValueError, 'seed_buy_orders missing'):
+            seed.run(self.db, apply=True)
+        self.assertEqual(self.rows('seed_stock'), before)
 
 
 if __name__ == '__main__':
