@@ -2,8 +2,8 @@
   "schemaVersion": 3,
   "id": "empire-specialized-haulers",
   "displayName": "Empire Specialized Haulers",
-  "version": "0.4.2",
-  "description": "Nine T1 ore, mineral and planetary haulers with their own blueprints.",
+  "version": "0.4.3",
+  "description": "Nine T1 ore, mineral and planetary haulers with blueprints and included market setup scripts.",
   "kind": "loader",
   "supportedBackends": [
     "native"

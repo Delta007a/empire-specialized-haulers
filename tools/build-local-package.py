@@ -19,6 +19,15 @@ LEGACY_WOLVERINE = {
 LEGACY_BLACK_SHA256 = "d9f4ec4297be2205c902b3de9776e6f98f9734fe4323596b723a623752a18f3e"
 PACKAGE_FILES = (
     "README.md",
+    "CHANGELOG.md",
+    "MARKET-SETUP.md",
+    "MARKET-SETUP-RU.txt",
+    "Market-Normal.cmd",
+    "Market-Hardcore.cmd",
+    "tools/seed-market.py",
+    "tools/run-market.cmd",
+    "tools/market-npc-stations.json",
+    "tools/MARKET-SEED.md",
     "catalog.js",
     "client-bootstrap.py",
     "client-catalog.py",

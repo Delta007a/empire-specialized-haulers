@@ -1,2 +1,4 @@
 # Preserve the exact bytes checked by visual-resources.json.
 art/** -text
+*.cmd text eol=crlf
+tools/market-npc-stations.json text eol=lf
