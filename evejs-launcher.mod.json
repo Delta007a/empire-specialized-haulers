@@ -2,7 +2,7 @@
   "schemaVersion": 3,
   "id": "empire-specialized-haulers",
   "displayName": "Empire Specialized Haulers",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Nine T1 ore, mineral and planetary haulers with their own blueprints.",
   "kind": "loader",
   "supportedBackends": [
