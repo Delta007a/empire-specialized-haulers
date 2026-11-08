@@ -1,5 +1,5 @@
 {
-  "version": "0.5.1",
+  "version": "0.5.2",
   "build": 3396210,
   "roots": {
     "eh40": "art/native",
@@ -289,12 +289,12 @@
       "sha256": "edee4617a396b144593be5d573596789a0ed86747013c057bb60b1dd7fefee61"
     },
     "eh40:/ai1_th/ai1_th.gr2": {
-      "bytes": 13511544,
-      "sha256": "cf79a8b9bb0c8e5708296812cb9437afa04939a10c3d3e7a210badf523abb2e4"
+      "bytes": 13655408,
+      "sha256": "af813606a53f55907cc5bfe40bda184881652b31f37805671723d3a9a17dca11"
     },
     "eh40:/ai1_th/ai1_th.black": {
-      "bytes": 6278,
-      "sha256": "5899a467cfd825a3db6c488ad79f01cda0caf6de7e8be16065d6e120d0efd4ac"
+      "bytes": 5958,
+      "sha256": "8c86d205ec4f2dc53e6fe846235e92756246303ae5436b9d648513927d1a9116"
     },
     "eh40:/ai1_rq/ai1_rq_a.dds": {
       "sha256": "b125fc98af08ab1adb5a98f63d79aca6a8fc8865e39c4dc004741ef934858c15",

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.2
+
+- Added low-profile upper and lower turret seats to Tithe’s original hull and aligned the native `locator_turret_1a` / `locator_turret_1b` pair with them. Both visual seats serve the existing single turret hardpoint.
+- Moved the lower seat onto a clear forward belly panel to avoid the adjacent hull step. Removed unused locator groups inherited from Bestower.
+- Preserved the existing hull geometry, UVs, materials, textures, icons, fitting stats, IDs and five native engine exhausts. Rebuilt all seven mesh LODs.
+
+Validated offline with the stock Dual Light Pulse Laser: both mounted weapon meshes clear the hull, locator frames have the correct outward axis, and all 245 exhaust-clearance rays pass. Native BLACK readback confirms that every field outside the turret locator list is unchanged. Live turret tracking and firing still need an in-game check.
+
 ## 0.5.1
 
 - Replaced Tithe’s Bestower-based appearance with the approved original Amarr hull, including its ivory armour, unequal stepped gold inlays inspired by Sigil, recessed panels and detailed underside.

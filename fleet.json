@@ -190,9 +190,9 @@
       ],
       "alias": "ai1_th",
       "visual": {
-        "blend": "tithe-051/Tithe-051-Detailed.blend",
-        "sha256": "45b45f87c7cd0d7346768eae369e04c7eaaca72f7eff5e86cb41d58fa4c7f498",
-        "variant": "Original Amarr hull with localized black-gunmetal underbody detailing, repaired shoulder normals, refined bridge and stepped gold inlays",
+        "blend": "tithe-052/Tithe-052-Hardpoints.blend",
+        "sha256": "58c25999f59fc1cf462300917be3228e6e844bd05bb8e4262aa5bf94c9e6b10f",
+        "variant": "Original Amarr hull with paired turret seats and localized black-gunmetal detailing",
         "nativeScale": 1.3079259772049754
       },
       "typeID": 2000000103,
