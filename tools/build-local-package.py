@@ -89,6 +89,18 @@ def read_asset(source, manifest, uri):
 
 def build(source, output):
     manifest = read_json(ROOT / "visual-resources.json")
+    fleet = read_json(ROOT / "fleet.json")
+    metadata = read_json(ROOT / "evejs-launcher.mod.json")
+    versions = {
+        "evejs-launcher.mod.json": metadata["version"],
+        "fleet.json": fleet["version"],
+        "visual-resources.json": manifest["version"],
+    }
+    if len(set(versions.values())) != 1:
+        details = ", ".join(f"{name}={version}" for name, version in versions.items())
+        raise ValueError(f"Release version mismatch: {details}")
+    if fleet["clientBuild"] != manifest["build"]:
+        raise ValueError("Fleet and visual resources target different EVE client builds.")
     local = read_json(source / "visual-resources.json")
     if local["build"] != manifest["build"]:
         raise ValueError("The local resource manifest targets a different client build.")

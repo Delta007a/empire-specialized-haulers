@@ -2,9 +2,11 @@
 
 Twelve T1 specialized haulers across **Amarr, Caldari, Gallente and Minmatar**, with dedicated holds for ore, minerals and ice, planetary cargo, or harvested gases. Each custom ship has its own model, inventory and Ship Tree icons, T1 blueprint, and native Mastery profile inherited from its base hull.
 
-**Version 0.5.2** · [Changelog](CHANGELOG.md) · [Releases](https://github.com/Delta007a/empire-specialized-haulers/releases)
+**Version 0.5.3** · [Changelog](CHANGELOG.md) · [Releases](https://github.com/Delta007a/empire-specialized-haulers/releases)
 
-**New in 0.5.2:** Tithe now has dedicated upper and lower mounting seats for its single turret hardpoint, with native locators aligned to the seats. A stock Dual Light Pulse Laser was used to verify the fit. Both seats belong to one fitted weapon. Existing hull detailing, textures, icons, stats and engine effects are preserved.
+**New in 0.5.3:** Fixes the `visual resource version mismatch` startup failure in the 0.5.2 package. All release metadata now agrees, and the package builder rejects inconsistent versions before creating a ZIP.
+
+**Included from 0.5.2:** Tithe now has dedicated upper and lower mounting seats for its single turret hardpoint, with native locators aligned to the seats. A stock Dual Light Pulse Laser was used to verify the fit. Both seats belong to one fitted weapon. Existing hull detailing, textures, icons, stats and engine effects are preserved.
 
 **Hull introduced in 0.5.1:** Tithe has a new original Amarr hull with ivory armour and stepped gold inlays inspired by Sigil, five repositioned native engine exhausts, and refreshed inventory, blueprint and Ship Tree icons. Its cockpit has aligned glazing and a fitted brow, and a closed pressure hull fills the space beneath its upper armour. Local panel details enrich the large empty underbody surfaces while retaining the original black gunmetal; corrected shading normals smooth the transition beneath the armour. Its length remains approximately 696 client units, matching the previous Tithe. Ship stats and IDs are unchanged.
 
@@ -27,7 +29,7 @@ Includes the headless GamePort login fix from 0.4.2, including WC support. The E
 
 ## Installation
 
-1. Download [EveJS-EmpireSpecializedHaulers-0.5.2.zip](https://github.com/Delta007a/empire-specialized-haulers/releases/download/v0.5.2/EveJS-EmpireSpecializedHaulers-0.5.2.zip).
+1. Download [EveJS-EmpireSpecializedHaulers-0.5.3.zip](https://github.com/Delta007a/empire-specialized-haulers/releases/download/v0.5.3/EveJS-EmpireSpecializedHaulers-0.5.3.zip).
 2. Open **Launcher → Mods → Add ZIP** and select the downloaded file.
 3. Enable **Empire Specialized Haulers**.
 4. Restart the **Game server** and start a fresh EVE client.
@@ -75,7 +77,7 @@ The `main` branch contains the runtime code and all **185 visual resources** use
 
 The installation ZIP includes all runtime files, visual resources, market tools and guides. In the repository and an enabled installation the loader is named `loader.js`; the installation ZIP uses `loader.js.disabled` so it can be enabled through the Launcher.
 
-For Launcher installation, use the named **EveJS-EmpireSpecializedHaulers-0.5.2.zip** release asset. GitHub's automatic **Source code (zip)** and **Source code (tar.gz)** downloads are repository snapshots that also include development files.
+For Launcher installation, use the named **EveJS-EmpireSpecializedHaulers-0.5.3.zip** release asset. GitHub's automatic **Source code (zip)** and **Source code (tar.gz)** downloads are repository snapshots that also include development files.
 
 ## Build the installation ZIP
 
@@ -85,7 +87,7 @@ With Python 3, run from a checkout of `main`:
 python tools/build-local-package.py .
 ```
 
-All required visual resources are included in the repository. The builder verifies their sizes and SHA-256 hashes against `visual-resources.json` and writes `dist/EveJS-EmpireSpecializedHaulers-0.5.2.zip` with the market scripts, guides and changelog.
+All required visual resources are included in the repository. The builder verifies their sizes and SHA-256 hashes against `visual-resources.json` and writes `dist/EveJS-EmpireSpecializedHaulers-0.5.3.zip` with the market scripts, guides and changelog.
 
 ## Validation
 

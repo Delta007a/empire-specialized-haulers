@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.3
+
+- Fixed the 0.5.2 startup failure: `fleet.json` still declared 0.5.1 while the Launcher metadata and visual manifest declared 0.5.2. All three now declare 0.5.3.
+- The package builder now rejects inconsistent release versions or client builds before creating a ZIP.
+- Added a regression for the original mismatch and a package-initialization check that runs the extracted archive’s own `install.js` against a compatible Native runtime in an isolated Node process, without starting the server.
+- Ship models, turret mounts, textures, icons, fitting stats and market behaviour are unchanged from 0.5.2.
+
+Validated: the original 0.5.2 ZIP is rejected, the 0.5.3 ZIP initializes successfully against the supported Native runtime, and both package-header regression tests pass.
+
 ## 0.5.2
 
 - Added low-profile upper and lower turret seats to Tithe’s original hull and aligned the native `locator_turret_1a` / `locator_turret_1b` pair with them. Both visual seats serve the existing single turret hardpoint.

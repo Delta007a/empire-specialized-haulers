@@ -2,7 +2,7 @@
   "schemaVersion": 3,
   "id": "empire-specialized-haulers",
   "displayName": "Empire Specialized Haulers",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Twelve T1 specialized haulers for all four empires, including Anemos, Vesper and Sable gas transports, with blueprints and market setup scripts.",
   "kind": "loader",
   "supportedBackends": [
