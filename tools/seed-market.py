@@ -19,8 +19,8 @@ import tomllib
 
 ROOT = Path(__file__).resolve().parent.parent
 NATIVE_BLUEPRINTS = {648: 983, 649: 984, 651: 986, 652: 987, 653: 988,
-                     1944: 1945, 19744: 19745}
-FACTIONS = {"caldari": 500001, "minmatar": 500002, "amarr": 500003}
+                     1944: 1945, 19744: 19745, 655: 990}
+FACTIONS = {"caldari": 500001, "minmatar": 500002, "amarr": 500003, "gallente": 500004}
 TYPE_FIELDS = {"type_id", "group_id", "category_id", "market_group_id", "name",
                "group_name", "base_price", "volume", "portion_size", "published"}
 STOCK_FIELDS = {"station_id", "solar_system_id", "constellation_id", "region_id",
@@ -141,7 +141,7 @@ def make_plan(conn, fleet, npc_owners, mode="normal", station_ids=()):
     check_schema(conn)
     owned = {i for ship in fleet["ships"] for i in (ship["typeID"], ship["blueprintTypeID"])}
     needed = owned | set(NATIVE_BLUEPRINTS) | set(NATIVE_BLUEPRINTS.values())
-    needed |= {i for role in fleet["roles"].values() for i in role[:2]}
+    needed |= {i for role in fleet["roles"].values() for i in role[:2]} | {i for pair in fleet.get("marketPriceReferences", {}).values() for i in pair}
     placeholders = ",".join("?" for _ in needed)
     types = {r["type_id"]: dict(r) for r in conn.execute(
         f"SELECT * FROM market_types WHERE type_id IN ({placeholders})", tuple(needed))}
@@ -149,7 +149,7 @@ def make_plan(conn, fleet, npc_owners, mode="normal", station_ids=()):
     for row in conn.execute(f"SELECT * FROM seed_stock WHERE initial_quantity > 0 AND type_id IN ({placeholders})", tuple(needed)):
         stock[row["type_id"]].append(dict(row))
     stock_at = {type_id: {r["station_id"]: r for r in rows} for type_id, rows in stock.items()}
-    references = price_references(stock, types, {i for role in fleet["roles"].values() for i in role[:2]})
+    references = price_references(stock, types, {i for role in fleet["roles"].values() for i in role[:2]} | {i for pair in fleet.get("marketPriceReferences", {}).values() for i in pair})
     buy_stock = defaultdict(list)
     has_buys = bool(columns(conn, "seed_buy_orders"))
     if has_buys:
@@ -157,7 +157,7 @@ def make_plan(conn, fleet, npc_owners, mode="normal", station_ids=()):
             buy_stock[row["type_id"]].append(dict(row))
     buy_at = {type_id: {r["station_id"]: r for r in rows} for type_id, rows in buy_stock.items()}
     buy_references = price_references(buy_stock, types,
-        {i for role in fleet["roles"].values() for i in role[:2]}, catalog_fallback=False)
+        {i for role in fleet["roles"].values() for i in role[:2]} | {i for pair in fleet.get("marketPriceReferences", {}).values() for i in pair}, catalog_fallback=False)
     original_sell_references = price_references(stock, types, set(NATIVE_BLUEPRINTS) | set(NATIVE_BLUEPRINTS.values()))
     stations = {r["station_id"]: r["station_name"] for r in
                 conn.execute("SELECT station_id, station_name FROM stations")}
@@ -170,7 +170,7 @@ def make_plan(conn, fleet, npc_owners, mode="normal", station_ids=()):
     current_buys = {(r["station_id"], r["type_id"]): dict(r) for r in conn.execute(
         "SELECT * FROM seed_buy_orders WHERE type_id IN (" + ",".join("?" for _ in owned) + ")", tuple(owned))} if has_buys else {}
     for ship in fleet["ships"]:
-        role_ship, role_bp = fleet["roles"][ship["role"]][:2]
+        role_ship, role_bp = fleet.get("marketPriceReferences", {}).get(ship["role"], fleet["roles"][ship["role"]][:2])
         base_ship, base_bp = ship["stockTypeID"], NATIVE_BLUEPRINTS[ship["stockTypeID"]]
         for type_id, category in ((base_ship, 6), (role_ship, 6), (base_bp, 9), (role_bp, 9)):
             if type_id not in types or types[type_id]["category_id"] != category:

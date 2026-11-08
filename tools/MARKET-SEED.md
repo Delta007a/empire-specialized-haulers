@@ -98,7 +98,7 @@ python tools/seed-market.py --mode hardcore --report hardcore-preview.json
 
 The JSON report lists each proposed station, original placement type, Gallente price reference, stock quantity, preserved offer and removal. Add `--apply` to the same command to write the changes and report the applied plan.
 
-The console and JSON report distinguish SELL offers from BUY offers and list removals on each side. To repair a market seeded with 0.4.3, update to 0.4.4 and run normal mode again; existing SELL offers are preserved while missing BUY orders are added.
+The console and JSON report distinguish SELL offers from BUY offers and list removals on each side. To repair a market seeded with 0.4.3, update to 0.5.1 and run normal mode again; existing SELL offers are preserved while missing BUY orders are added.
 
 An explicit file is still accepted when using a checkout outside a server installation: `python tools/seed-market.py "D:/your/actual/market.sqlite"`. That path is an example to replace with your file; the double-click launchers do not require it.
 
@@ -108,4 +108,7 @@ The file must contain EveJS `market_types`, `seed_stock` and `stations` tables. 
 
 After regenerating a market file, run the script again on the new file. The mod itself does not automatically seed or restore market stock.
 
-The **mod installation ZIP 0.4.4** includes the scripts, station reference and both quick-start guides in the mod folder. Users of 0.4.2 or 0.4.3 can update through the Launcher before running market setup.
+The **mod installation ZIP 0.5.1** includes the scripts, station reference and both quick-start guides in the mod folder. Users of 0.4.2 or 0.4.3 can update through the Launcher before running market setup.
+
+
+Gas ships: Anemos follows Epithal, Vesper follows Sigil, and Sable follows Badger. Normal mode mirrors both original SELL and BUY availability; prices follow the corresponding Epithal order side. Hardcore mode adds only BPOs at the matching original BPO sellers owned by NPC corporations of the ship's faction.

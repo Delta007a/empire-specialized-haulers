@@ -8,7 +8,7 @@ const {test} = require("node:test");
 const {createDelivery, transformHandshake, SYMBOL} = require("../login-envelope");
 
 const generation = "a".repeat(24);
-const ready = "CATALOG_READY ships=9 blueprintTypes=9";
+const ready = "CATALOG_READY ships=12 blueprintTypes=12";
 const pack = text => {
   const bytes = Buffer.from(text, "ascii");
   const header = Buffer.alloc(5);

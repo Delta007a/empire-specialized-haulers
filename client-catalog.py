@@ -210,6 +210,7 @@ class Transaction(object):
 
 HOLD_TEXT = {
     1556: "to Mining Hold capacity",
+    1557: "to Gas Hold capacity",
     1558: "to Mineral Hold capacity",
     3136: "to Ice Hold capacity",
     1653: "to Planetary Commodities Hold capacity",
@@ -260,7 +261,7 @@ def build_catalog(payload, native, attribute, effect_ref):
             if velocity_ref is None:
                 # The fast haulers do not have the approved velocity effect;
                 # use the same faction's heavy hauler's native effect row.
-                reference = {1: 649, 4: 1944, 2: 652}[race]
+                reference = {1: 649, 4: 1944, 2: 652, 8: 657}[race]
                 velocity_ref = next(row for row in native["typedogma"][reference].dogmaEffects
                                     if row.effectID == velocity_effect)
             effect_rows = []
@@ -297,13 +298,13 @@ def build_catalog(payload, native, attribute, effect_ref):
             bonuses.append(dict(bonus=percent, importance=importance, nameID=key, unitID=105))
         traits[ship_id] = dict(types={str(skill): bonuses[:-1]}, roleBonuses=[bonuses[-1]], miscBonuses=[])
 
-    require(len(owned["types"]) == 18 and len(owned["graphicids"]) == 9 and
-            len(owned["dogmaeffects"]) == 9, "incomplete fleet")
+    require(len(owned["types"]) == 2 * len(fleet["ships"]) and len(owned["graphicids"]) == len(fleet["ships"]) and
+            len(owned["dogmaeffects"]) == len(fleet["ships"]), "incomplete fleet")
     require(not any(getattr(row, "typeNameID", None) in locale or
                     getattr(row, "descriptionID", None) in locale for row in native["types"].itervalues()),
             "native type localization collision")
     aliases = set(row.sofHullName for row in owned["graphicids"].itervalues())
-    require(len(aliases) == 9 and not any(getattr(row, "sofHullName", None) in aliases
+    require(len(aliases) == len(fleet["ships"]) and not any(getattr(row, "sofHullName", None) in aliases
                                          for row in native["graphicids"].itervalues()), "native SOF collision")
     views = dict((k, View(native[k], rows)) for k, rows in owned.iteritems())
     return views, locale, traits

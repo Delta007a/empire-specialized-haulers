@@ -101,7 +101,7 @@ function install(root,modRoot,moduleHost=Module) {
       requireReady(!state.handshakeReady,"duplicate handshake compilation");
       source=transformHandshake(handshake,source,expected);
       state.handshakeReady=true;
-      console.log("[EmpireHaulers] LOGIN_READY build=3396210 types=18");
+      console.log("[EmpireHaulers] LOGIN_READY build=3396210 types=24");
     }
     return previous.call(this,source,filename);
   };

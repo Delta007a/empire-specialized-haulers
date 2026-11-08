@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.5.1
+
+- Replaced Tithe’s Bestower-based appearance with the approved original Amarr hull, including its ivory armour, unequal stepped gold inlays inspired by Sigil, recessed panels and detailed underside.
+- Matched the previous Tithe’s length: approximately 696 client units. The new hull is approximately 204 wide and 168 high; proportions are preserved.
+- Rebound native Amarr flight and warp exhausts to five actual nozzle openings. Retained the animated heat-glow shader and native audio/damage controllers, and repositioned turret mounts and navigation lights for the new hull.
+- Added seven native mesh LODs and updated all seven Tithe inventory, BPO/BPC and Ship Tree images. Mastery tint and opacity remain controlled by the client.
+- Rebuilt Tithe’s cockpit with level glazing, aligned frames and a fitted gold brow. Filled the open space beneath the upper armour with a closed pressure hull joined to the lower body. Kept the accepted icon framing and engine bindings.
+- Added restrained panel seams, small service markings and subtle roughness variation only to thirteen large empty underbody faces, retaining the original black gunmetal and existing detailing. Corrected faulty shading normals at the under-armour transition without changing the hull’s shape.
+- Preserved all ship IDs, fitting, cargo, skills, blueprints and Mastery profiles, and all other ships’ assets. Includes the three gas transports from 0.5.0.
+
+Validated offline: native GR2/DDS/BLACK readback, seven mesh LODs, five unobstructed exhaust outlets (245 clearance rays), stock booster resources and animation parameters, and package resource hashes. The user confirmed working engine animation in EVE. The latest cockpit, closed-hull, local underbody detailing and shading refinements have been reviewed through native-file studio renders; their in-game visual check remains pending.
+
+## 0.5.0
+
+- Added Anemos (Gallente), Vesper (Amarr) and Sable (Caldari), with the supplied English descriptions.
+- Added a 30,000 m³ dedicated Gas Hold, scaling to 45,000 m³ at racial Hauler V, plus 500 m³ regular cargo. Each racial Hauler level grants 5% maximum velocity.
+- Included the approved models with stock hull coatings, seven native LODs, original skeletons and animations, BPO/BPC and inventory icons, and neutral Ship Tree sprites. The client applies Mastery tint and opacity.
+- Corrected Vesper's forward pipe joint and moved Anemos attachments to match its extended hull.
+- Added native Mastery profiles inherited from Epithal, Sigil and Badger, plus T1 blueprints supporting manufacturing, copying and material/time research.
+- Extended both market modes to all twelve custom ships. Gas prices follow Epithal on each order side; locations follow their own base hulls. Hardcore mode supports Gallente NPC Epithal blueprint sellers.
+- Expanded the catalog and login payload to 24 item types and 185 verified visual resources. Existing ship IDs and visual assets remain unchanged.
+
+Validated offline: 48 native server fitting cases, twelve Solo Progression/Drone Class Balance cases, native Python 2 client lookup/effect/blueprint APIs, signed login composition, all twelve Mastery profiles at I–V, and 29 market tests. Game-native model/DDS readback and all eight retained texture mips passed. The three gas ships still need a live in-game visual and cargo check before being described as in-game verified.
+
 ## 0.4.4
 
 - Fixed missing NPC BUY orders in market setup. Normal mode now adds BUY demand at the selected selling locations when the corresponding original hull or BPO has a seeded BUY order there.

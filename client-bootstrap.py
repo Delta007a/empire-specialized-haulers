@@ -1,7 +1,7 @@
 # Python 2.7 signed-login bootstrap for EVE 3396210.
 OWNER_KEY = "_empire_haulers_session_v040"
 MOUNT_KEY = "_empire_haulers_mount_v040"
-PASS = "CATALOG_READY ships=9 blueprintTypes=9"
+PASS = "CATALOG_READY ships=12 blueprintTypes=12"
 
 
 class SessionCatalog(object):
@@ -342,7 +342,7 @@ def activate_catalog(owner, payload, cfg, d, e, skills, gfx, loc, traits_data,
         type_id,bpo = ship["typeID"],ship["blueprintTypeID"]
         require(e.Exists(type_id) and e.Exists(bpo) and e.GetName(type_id)==ship["name"] and
                 e.GetCategoryID(type_id)==6 and e.GetCategoryID(bpo)==9 and
-                e.GetCapacity(type_id)==550 and e.GetGraphicID(type_id)==ship["graphicID"],
+                e.GetCapacity(type_id)==(500 if ship["role"]=="gas" else 550) and e.GetGraphicID(type_id)==ship["graphicID"],
                 "native type readback failed " + ship["name"])
         require(gfx.BuildSOFDNAFromTypeID(type_id).split(":")[0]==ship["alias"],
                 "native SOF DNA readback failed " + ship["name"])

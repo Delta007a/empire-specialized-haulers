@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "clientBuild": 3396210,
-  "version": "0.4.4",
+  "version": "0.5.1",
   "races": {
     "caldari": [
       1,
@@ -29,6 +29,15 @@
       814,
       82,
       282
+    ],
+    "gallente": [
+      8,
+      3340,
+      729,
+      496,
+      813,
+      83,
+      283
     ]
   },
   "roles": {
@@ -66,6 +75,17 @@
       },
       [
         1653
+      ]
+    ],
+    "gas": [
+      651,
+      986,
+      4525000,
+      {
+        "1557": 30000
+      },
+      [
+        1557
       ]
     ]
   },
@@ -170,9 +190,10 @@
       ],
       "alias": "ai1_th",
       "visual": {
-        "blend": "design-exploration/Selected-Haulers-Finish-04/Tithe/Tithe-A.blend",
-        "sha256": "40e94e43576794bf1f5ddeec0ce602140e00a8d97e65965d33bd670118a7ec63",
-        "variant": "A"
+        "blend": "tithe-051/Tithe-051-Detailed.blend",
+        "sha256": "45b45f87c7cd0d7346768eae369e04c7eaaca72f7eff5e86cb41d58fa4c7f498",
+        "variant": "Original Amarr hull with localized black-gunmetal underbody detailing, repaired shoulder normals, refined bridge and stepped gold inlays",
+        "nativeScale": 1.3079259772049754
       },
       "typeID": 2000000103,
       "graphicID": 2000000303,
@@ -319,6 +340,96 @@
       "blueprintTypeID": 2000000208,
       "effectID": 2000000408,
       "messageBase": -2000010128
+    },
+    {
+      "name": "Anemos",
+      "description": "The Anemos is a specialized industrial vessel designed for the transportation of harvested gases throughout the Gallente Federation. Its dedicated containment chambers provide secure storage for volatile materials, allowing independent operators and industrial corporations to transport valuable resources between remote extraction sites and processing facilities.\n\nDeveloped with flexibility and operational reliability in mind, the Anemos is particularly suited to the varied demands of frontier industry. Its efficient cargo handling systems and adaptable design have made it a dependable choice among gas harvesting crews operating throughout Federation space and beyond.",
+      "stock": "Epithal",
+      "stockTypeID": 655,
+      "stockGraphicID": 326,
+      "stockAlias": "gi3_t1",
+      "empire": "gallente",
+      "slots": [
+        2,
+        4,
+        4
+      ],
+      "alias": "gi3_an",
+      "stockGr2": "design-exploration/Hull-Family-Series-02/sources/Epithal/gi3_t1.gr2",
+      "role": "gas",
+      "stockGr2Sha256": "c264e16986eafa4af880bfa8cdea3fd7854793f1b00ff0a1c78c8eeaa2bd13f9",
+      "visual": {
+        "blend": "design-exploration/Gas-Haulers-05/Epithal/Epithal-Gas-A-Stock-Coatings.blend",
+        "sha256": "19bf05c5155f0f7c4967e540a3c381d0418048e518ffba3c732f70b23bc41fb8",
+        "variant": "A"
+      },
+      "typeID": 2000000109,
+      "graphicID": 2000000309,
+      "blueprintTypeID": 2000000209,
+      "effectID": 2000000409,
+      "messageBase": -2000010144
+    },
+    {
+      "name": "Vesper",
+      "description": "The Vesper serves the extensive industrial needs of the Amarr Empire, transporting valuable gaseous materials from distant harvesting operations to the refineries and manufacturing centers that sustain Imperial production. Its carefully regulated containment chambers are designed to preserve sensitive cargo during extended journeys.\n\nBuilt to meet the exacting standards of Imperial industry, the Vesper emphasizes endurance, secure storage and dependable operation. Its reinforced containment systems and meticulous cargo management reflect the Empire's commitment to preserving the resources entrusted to its industrial fleets.",
+      "stock": "Sigil",
+      "stockTypeID": 19744,
+      "stockGraphicID": 2715,
+      "stockAlias": "ai2_t1",
+      "empire": "amarr",
+      "slots": [
+        2,
+        3,
+        5
+      ],
+      "alias": "ai2_vs",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Sigil/ai2_t1.gr2",
+      "role": "gas",
+      "stockGr2Sha256": "6020c9f194a889fd730d1413e2a8eb5aae689607c79f0ac21d26583bac5346b5",
+      "visual": {
+        "blend": "design-exploration/Gas-Haulers-05/Sigil/Sigil-Gas-Final-Stock-Coatings.blend",
+        "sha256": "ddaf334773552932793b316908cc3df2d393dbf6845f0f657c000bcb968d8f6a",
+        "variant": "A"
+      },
+      "typeID": 2000000110,
+      "graphicID": 2000000310,
+      "blueprintTypeID": 2000000210,
+      "effectID": 2000000410,
+      "messageBase": -2000010160
+    },
+    {
+      "name": "Sable",
+      "description": "The Sable is a specialized Caldari industrial transport designed for the efficient movement of harvested gases. Its independently monitored containment systems and automated cargo handling equipment allow corporate operators to transport sensitive materials while minimizing delays and unnecessary handling.\n\nBuilt for the demanding schedules of the State's industrial corporations, the Sable prioritizes efficiency, predictable operation and rapid turnaround at processing facilities. Its practical design makes it a valuable asset to companies operating across widely dispersed gas harvesting installations.",
+      "stock": "Badger",
+      "stockTypeID": 648,
+      "stockGraphicID": 51,
+      "stockAlias": "ci1_t1",
+      "empire": "caldari",
+      "slots": [
+        2,
+        5,
+        3
+      ],
+      "alias": "ci1_sb",
+      "stockGr2": "design-exploration/Eight-Hauler-Concepts/sources/Badger/ci1_t1.gr2",
+      "role": "gas",
+      "stockGr2Sha256": "f468f5a08d239412487bc9b35bcea1ecbf85df1780c6c5bdce6a5d0249edd30e",
+      "visual": {
+        "blend": "design-exploration/Gas-Haulers-05/Badger/Badger-Gas-C-Stock-Coatings.blend",
+        "sha256": "cd7e24cb17b4a4dfb998afd1f429598cb8542e9bd01347223f70485b31bfaecd",
+        "variant": "C"
+      },
+      "typeID": 2000000111,
+      "graphicID": 2000000311,
+      "blueprintTypeID": 2000000211,
+      "effectID": 2000000411,
+      "messageBase": -2000010176
     }
-  ]
+  ],
+  "marketPriceReferences": {
+    "gas": [
+      655,
+      990
+    ]
+  }
 }

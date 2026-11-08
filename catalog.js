@@ -13,8 +13,8 @@ const TABLE_KEYS = {
   industryBlueprints: "blueprintDefinitions",
   shipInsurancePrices: "byTypeID",
 };
-const RETIRED_EFFECTS = new Set([529, 727, 728, 5468, 5469, 5471, 5477, 7117, 8275]);
-const RETIRED_ATTRIBUTES = [493, 494, 495, 809, 811, 814, 1557, 1573, 2789, 3210];
+const RETIRED_EFFECTS = new Set([529, 727, 728, 5468, 5469, 5471, 5477, 5478, 7117, 8275]);
+const RETIRED_ATTRIBUTES = [493, 494, 495, 809, 811, 814, 1556, 1557, 1558, 1573, 1646, 1653, 2789, 3136, 3210];
 const ACTIVITIES = ["manufacturing", "copying", "research_material", "research_time"];
 const MATERIALS = [80000, 15000, 3750, 2000, 750, 125, 70];
 const EMPTY = Object.freeze([]);
@@ -63,11 +63,11 @@ function getStatic(dataDir) {
 }
 
 function makeCatalog(tables) {
-  requireFleet(fleet.ships.length === 9, "fleet size");
+  requireFleet(fleet.ships.length === 12, "fleet size");
   const ids = ownedIDs();
   for (const name of ["types", "graphics", "effects"]) checkIDs(ids[name], name);
   checkIDs(ids.messages, "localization IDs", id => id >= -0x80000000 && id < 0);
-  requireFleet(new Set(ids.aliases).size === 9, "duplicate SOF alias");
+  requireFleet(new Set(ids.aliases).size === fleet.ships.length, "duplicate SOF alias");
   const additions = {};
   const indexes = {};
   for (const [table, key] of Object.entries(TABLE_KEYS)) {
@@ -113,7 +113,7 @@ function makeCatalog(tables) {
       stock.categoryID === 6 && stock.groupID === 28 && attrs?.[182] === skillID &&
       attrs[277] === 1 && attrs[1132] === 400 && attrs[1137] === 3 && attrs[1547] === 2,
     ship.name + " stock source changed");
-    requireFleet(template?.capacity === 550 && template.basePrice === 1400000 &&
+    requireFleet(template?.capacity === (ship.role === "gas" ? 500 : 550) && template.basePrice === 1400000 &&
       tDogma?.attributes?.[1971] === 0.1 &&
       Object.entries(holds).every(([id, value]) => tDogma.attributes[id] === value),
     ship.name + " specialty template drift");

@@ -12,7 +12,8 @@ const CALL_PREFIXES = [
 ];
 const RESULT = "  _handleFuncResult(decoded) {";
 const MAX = 256 * 1024;
-const READY = "CATALOG_READY ships=9 blueprintTypes=9";
+const FLEET_SIZE = require("./fleet.json").ships.length;
+const READY = `CATALOG_READY ships=${FLEET_SIZE} blueprintTypes=${FLEET_SIZE}`;
 const CORE_HASH = "c84cffe20c00cf075a97daa31ca53c435af4f14c814e46d828760dbbb55fb566";
 const normal = value => value.replaceAll("\r\n", "\n");
 const sha = value => createHash("sha256").update(value).digest("hex");

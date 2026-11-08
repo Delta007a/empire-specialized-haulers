@@ -22,6 +22,9 @@ If Python is missing, install Python 3.11 or newer from python.org, enable **Add
 
 Repeat runs preserve purchases, remaining quantities, existing prices and player orders. After regenerating the market database, run the desired mode again.
 
-**Already used 0.4.3?** Update to 0.4.4 and run `Market-Normal.cmd` again. It adds the missing BUY orders while preserving existing SELL prices and stock. Blueprint BUY orders are added only if the original BPO has them.
+**Already used 0.4.3?** Update to 0.5.1 and run `Market-Normal.cmd` again. It adds the missing BUY orders while preserving existing SELL prices and stock. Blueprint BUY orders are added only if the original BPO has them.
 
 See [the detailed guide](tools/MARKET-SEED.md) for pricing, station mapping and optional command-line controls, or [the Russian step-by-step instructions](MARKET-SETUP-RU.txt).
+
+
+Gas ships: Anemos follows Epithal, Vesper follows Sigil, and Sable follows Badger. Normal mode mirrors both original SELL and BUY availability; prices follow the corresponding Epithal order side. Hardcore mode adds only BPOs at the matching original BPO sellers owned by NPC corporations of the ship's faction.

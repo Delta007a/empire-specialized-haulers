@@ -42,7 +42,9 @@ class MarketSeedTests(unittest.TestCase):
             INSERT INTO manifest VALUES('arbitrary_generator','neither inspected nor changed');
             CREATE TABLE market_orders(order_id INTEGER PRIMARY KEY,owner_id INTEGER,region_id INTEGER,station_id INTEGER,
                 type_id INTEGER,price REAL,vol_remaining INTEGER,bid INTEGER,state TEXT,source TEXT);
-            CREATE TABLE seed_buy_orders AS SELECT * FROM seed_stock WHERE 0;
+            CREATE TABLE seed_buy_orders(station_id INTEGER,solar_system_id INTEGER,constellation_id INTEGER,region_id INTEGER,
+                type_id INTEGER,price REAL,quantity INTEGER,initial_quantity INTEGER,price_version INTEGER DEFAULT 1,
+                updated_at TEXT,PRIMARY KEY(station_id,type_id));
             CREATE TABLE region_summaries(region_id INTEGER,type_id INTEGER,best_ask_price REAL,total_ask_quantity INTEGER,
                 best_ask_station_id INTEGER,best_bid_price REAL,total_bid_quantity INTEGER,best_bid_station_id INTEGER,
                 updated_at TEXT,PRIMARY KEY(region_id,type_id));
@@ -71,18 +73,18 @@ class MarketSeedTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def add_type(self, type_id, name, category, price, volume):
-        self.conn.execute("INSERT INTO market_types VALUES(?,?,?,?,?,?,?,?,1,1)",
+        self.conn.execute("INSERT OR REPLACE INTO market_types VALUES(?,?,?,?,?,?,?,?,1,1)",
                           (type_id, 108 if category == 9 else 28, category, 283 if category == 9 else 83,
                            name, "Hauler Blueprint" if category == 9 else "Hauler", price, volume))
 
     def add_seed(self, type_id, station, price=123456, quantity=100):
         system, constellation, region = LOCATIONS[station]
-        self.conn.execute("INSERT INTO seed_stock VALUES(?,?,?,?,?,?,?,?,1,'original')",
+        self.conn.execute("INSERT OR REPLACE INTO seed_stock VALUES(?,?,?,?,?,?,?,?,1,'original')",
                           (station, system, constellation, region, type_id, price, quantity, quantity))
 
     def add_buy(self, type_id, station, price=10000, quantity=40):
         system, constellation, region = LOCATIONS[station]
-        self.conn.execute("INSERT INTO seed_buy_orders VALUES(?,?,?,?,?,?,?,?,1,'original buy')",
+        self.conn.execute("INSERT OR REPLACE INTO seed_buy_orders VALUES(?,?,?,?,?,?,?,?,1,'original buy')",
                           (station, system, constellation, region, type_id, price, quantity, quantity))
 
     def hull_buys(self, *stations):
@@ -146,16 +148,16 @@ class MarketSeedTests(unittest.TestCase):
         preview = seed.run(self.db)
         self.assertEqual(self.rows("seed_stock"), before)
         self.assertEqual({e["row"]["station_id"] for e in preview["offers"]}, {JITA})
-        self.assertEqual(len(preview["offers"]), 18)
+        self.assertEqual(len(preview["offers"]), 24)
         seed.run(self.db, apply=True)
-        self.assertEqual(len(self.mod_stock()), 18)
+        self.assertEqual(len(self.mod_stock()), 24)
         self.assertEqual(self.conn.execute('SELECT volume FROM market_types WHERE type_id=2000000001').fetchone()[0], 123000)
 
     def test_multiple_hubs_mirror_all_existing_hub_locations(self):
         self.native_hulls(JITA, AMARR, RENS, SECOND_CALDARI, FOREIGN)
         plan = seed.run(self.db, apply=True)
-        self.assertEqual(len(plan["offers"]), 90)
-        self.assertEqual(len(self.mod_stock()), 90)
+        self.assertEqual(len(plan["offers"]), 120)
+        self.assertEqual(len(self.mod_stock()), 120)
 
     def test_galaxy_distribution_uses_each_exact_original_hull(self):
         for i, type_id in enumerate(seed.NATIVE_BLUEPRINTS):
@@ -172,19 +174,19 @@ class MarketSeedTests(unittest.TestCase):
         self.native_bpos(JITA, AMARR, RENS, SECOND_CALDARI, FOREIGN)
         self.gallente(JITA)
         plan = seed.run(self.db, "hardcore", apply=True)
-        bp_ids = {s["blueprintTypeID"] for s in FLEET["ships"]}
+        bp_ids = {s["blueprintTypeID"] for s in FLEET["ships"] if s["empire"] != "gallente"}
         self.assertEqual({r[4] for r in self.mod_stock()}, bp_ids)
         for s in FLEET["ships"]:
             places = {r[0] for r in self.mod_stock() if r[4] == s["blueprintTypeID"]}
-            self.assertEqual(places, {"caldari": {JITA, SECOND_CALDARI}, "amarr": {AMARR}, "minmatar": {RENS}}[s["empire"]])
+            self.assertEqual(places, {"caldari": {JITA, SECOND_CALDARI}, "amarr": {AMARR}, "minmatar": {RENS}, "gallente": set()}[s["empire"]])
         self.assertNotIn(FOREIGN, {r[0] for r in self.mod_stock()})
-        self.assertFalse(plan["warnings"])
+        self.assertTrue(all("Anemos" in w for w in plan["warnings"]))
 
     def test_hardcore_does_not_invent_missing_sellers(self):
         self.native_bpos(JITA)
         plan = seed.run(self.db, "hardcore")
-        self.assertEqual(len(plan["offers"]), 3)
-        self.assertEqual(len(plan["warnings"]), 6)
+        self.assertEqual(len(plan["offers"]), 4)
+        self.assertEqual(len(plan["warnings"]), 8)
 
     def test_prices_prefer_local_gallente_specialization(self):
         self.native_hulls(JITA, AMARR)
@@ -239,7 +241,7 @@ class MarketSeedTests(unittest.TestCase):
         orders = self.rows("market_orders")
         unrelated_buys = [r for r in self.rows("seed_buy_orders") if r[4] not in OWNED]
         seed.run(self.db, "hardcore", apply=True)
-        self.assertEqual(len(self.mod_stock()), 9)
+        self.assertEqual(len(self.mod_stock()), 11)
         self.assertEqual(self.rows("market_orders"), orders)
         self.assertEqual(self.rows("seed_buy_orders"), unrelated_buys)
         region = self.conn.execute('SELECT best_ask_price,total_ask_quantity,best_bid_price,total_bid_quantity FROM region_summaries WHERE region_id=10000002 AND type_id=2000000001').fetchone()
@@ -251,7 +253,7 @@ class MarketSeedTests(unittest.TestCase):
         self.native_hulls(JITA, AMARR)
         seed.run(self.db, apply=True)
         seed.run(self.db, apply=True, station_ids=[JITA])
-        self.assertEqual(len(self.mod_stock()), 18)
+        self.assertEqual(len(self.mod_stock()), 24)
         self.assertEqual({r[0] for r in self.mod_stock()}, {JITA})
         self.assertTrue(self.conn.execute('SELECT 1 FROM seed_stock WHERE station_id=? AND type_id=648', (AMARR,)).fetchone())
 
@@ -288,14 +290,14 @@ class MarketSeedTests(unittest.TestCase):
         self.conn.execute('ALTER TABLE seed_stock DROP COLUMN price_version')
         self.conn.commit()
         seed.run(self.db, apply=True)
-        self.assertEqual(len(self.mod_stock()), 18)
+        self.assertEqual(len(self.mod_stock()), 24)
 
     def test_preview_reads_uncheckpointed_wal(self):
         self.conn.execute('PRAGMA journal_mode=WAL')
         self.conn.execute('PRAGMA wal_autocheckpoint=0')
         self.native_hulls(JITA)
         self.assertGreater(Path(str(self.db) + '-wal').stat().st_size, 0)
-        self.assertEqual(len(seed.run(self.db)["offers"]), 18)
+        self.assertEqual(len(seed.run(self.db)["offers"]), 24)
 
     def test_cli_preview_report_and_bad_schema(self):
         self.native_hulls(JITA)
@@ -317,7 +319,7 @@ class MarketSeedTests(unittest.TestCase):
         result = subprocess.run([sys.executable, str(mod/'tools/seed-market.py')],
                                 cwd=self.tmp.name, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('PREVIEW normal: 18 new types, 18 new SELL offers', result.stdout)
+        self.assertIn('PREVIEW normal: 24 new types, 24 new SELL offers', result.stdout)
         with closing(sqlite3.connect(target)) as c:
             self.assertIsNone(c.execute('SELECT 1 FROM seed_stock WHERE type_id=2000000001').fetchone())
 
@@ -344,7 +346,7 @@ class MarketSeedTests(unittest.TestCase):
         self.gallente(JITA)
         self.hull_buys(JITA, AMARR, RENS)
         mod, target = self.installation('[storage]\ndatabase_path = "data/generated/market.sqlite"\n')
-        for name, mode, expected in (("Market-Normal.cmd", "normal", 54), ("Market-Hardcore.cmd", "hardcore", 9)):
+        for name, mode, expected in (("Market-Normal.cmd", "normal", 72), ("Market-Hardcore.cmd", "hardcore", 11)):
             result = subprocess.run(['cmd.exe', '/d', '/c', str(mod/name)], input='\n',
                                     cwd=self.tmp.name, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -356,7 +358,7 @@ class MarketSeedTests(unittest.TestCase):
                 self.assertEqual(count, expected)
                 buy_count = c.execute('SELECT count(*) FROM seed_buy_orders WHERE type_id IN (' +
                                       ','.join('?' for _ in OWNED) + ')', tuple(OWNED)).fetchone()[0]
-                self.assertEqual(buy_count, 27 if mode == 'normal' else 0)
+                self.assertEqual(buy_count, 36 if mode == 'normal' else 0)
         self.assertFalse(self.mod_stock())
 
     def test_normal_copies_buy_side_with_gallente_bid_price_and_original_demand(self):
@@ -364,8 +366,8 @@ class MarketSeedTests(unittest.TestCase):
         self.gallente(JITA)
         self.hull_buys(JITA)
         plan = seed.run(self.db, apply=True)
-        self.assertEqual(len(plan['offers']), 18)
-        self.assertEqual(len(plan['buyOffers']), 9)
+        self.assertEqual(len(plan['offers']), 24)
+        self.assertEqual(len(plan['buyOffers']), 12)
         for entry in plan['buyOffers']:
             self.assertEqual(entry['orderSide'], 'BUY')
             price = self.conn.execute('SELECT price FROM seed_buy_orders WHERE type_id=? AND station_id=?',
@@ -403,7 +405,7 @@ class MarketSeedTests(unittest.TestCase):
         self.hull_buys(JITA)
         upgrade = seed.run(self.db, apply=True)
         self.assertFalse(any(e['new'] for e in upgrade['offers']))
-        self.assertEqual(sum(e['new'] for e in upgrade['buyOffers']), 9)
+        self.assertEqual(sum(e['new'] for e in upgrade['buyOffers']), 12)
         self.assertEqual(self.rows('seed_stock'), previous_sells)
         self.conn.execute('UPDATE seed_buy_orders SET quantity=0,price=456 WHERE type_id=2000000001')
         self.conn.commit()
@@ -420,8 +422,10 @@ class MarketSeedTests(unittest.TestCase):
             self.add_buy(role[0], JITA)
         self.conn.commit()
         plan = seed.run(self.db, station_ids=[JITA])
-        self.assertEqual(len(plan['offers']), 18)
-        self.assertFalse(plan['buyOffers'])
+        self.assertEqual(len(plan['offers']), 24)
+        # Hoarder and Epithal are now both native hull and price-reference types.
+        # Their actual bids legitimately anchor Muskox and Anemos.
+        self.assertEqual({entry['name'] for entry in plan['buyOffers']}, {'Muskox', 'Anemos'})
 
     def test_bpo_buy_orders_follow_original_bpos_in_normal_and_hardcore(self):
         self.native_hulls(JITA, AMARR, RENS)
@@ -434,11 +438,11 @@ class MarketSeedTests(unittest.TestCase):
         self.add_buy(989, JITA, 300000)
         self.conn.commit()
         normal = seed.run(self.db, apply=True)
-        self.assertEqual(len(normal['buyOffers']), 31)
+        self.assertEqual(len(normal['buyOffers']), 40)
         hardcore = seed.run(self.db, 'hardcore', apply=True)
         self.assertEqual(len(hardcore['buyOffers']), 4)
         self.assertTrue(all(e['name'].endswith(' Blueprint') for e in hardcore['buyOffers']))
-        self.assertEqual(len(hardcore['removeBuys']), 27)
+        self.assertEqual(len(hardcore['removeBuys']), 36)
 
     def test_failed_buy_insert_rolls_back_catalog_sells_and_buys(self):
         self.native_hulls(JITA)
@@ -460,6 +464,34 @@ class MarketSeedTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'seed_buy_orders missing'):
             seed.run(self.db, apply=True)
         self.assertEqual(self.rows('seed_stock'), before)
+
+
+    def test_anemos_hardcore_uses_actual_gallente_npc_bpo_seller(self):
+        dodixie = 60011866
+        LOCATIONS[dodixie] = (30002659, 20000389, 10000032)
+        self.conn.execute('INSERT INTO stations VALUES(?,?,?,?,?,0.8)',
+                          (dodixie, *LOCATIONS[dodixie], 'Dodixie Federation Navy'))
+        self.add_seed(990, dodixie, 6000000, 2147483647)
+        self.conn.commit()
+        plan = seed.run(self.db, 'hardcore', apply=True)
+        self.assertEqual({e['name'] for e in plan['offers']}, {'Anemos Blueprint'})
+        self.assertEqual(plan['offers'][0]['row']['station_id'], dodixie)
+        self.assertEqual(plan['offers'][0]['row']['price'], 6000000)
+        self.assertFalse(plan['buyOffers'])
+        LOCATIONS.pop(dodixie)
+
+    def test_gas_hub_offers_follow_base_hulls_and_epithal_prices_on_both_sides(self):
+        self.native_hulls(JITA)
+        self.gallente(JITA)
+        self.hull_buys(JITA)
+        plan = seed.run(self.db, apply=True)
+        names = {'Anemos', 'Vesper', 'Sable'}
+        for side in ('offers', 'buyOffers'):
+            gas = [e for e in plan[side] if e['name'] in names]
+            self.assertEqual({e['name'] for e in gas}, names)
+            self.assertTrue(all(e['priceTypeID'] == 655 and e['row']['station_id'] == JITA for e in gas))
+            self.assertEqual({e['anchorTypeID'] for e in gas}, {655,19744,648})
+        self.assertFalse(seed.run(self.db)['remove'])
 
 
 if __name__ == '__main__':
