@@ -2,7 +2,9 @@
 
 Twelve T1 specialized haulers across **Amarr, Caldari, Gallente and Minmatar**, with dedicated holds for ore, minerals and ice, planetary cargo, or harvested gases. Each custom ship has its own model, inventory and Ship Tree icons, T1 blueprint, and native Mastery profile inherited from its base hull.
 
-**Version 0.5.3** · [Changelog](CHANGELOG.md) · [Releases](https://github.com/Delta007a/empire-specialized-haulers/releases)
+**Version 0.5.4** · [Changelog](CHANGELOG.md) · [Releases](https://github.com/Delta007a/empire-specialized-haulers/releases)
+
+**New in 0.5.4:** Native support for EveJS 261108.1. The login hook accepts the reviewed handshake for each supported server and preserves the signature value sent by that server.
 
 **New in 0.5.3:** Fixes the `visual resource version mismatch` startup failure in the 0.5.2 package. All release metadata now agrees, and the package builder rejects inconsistent versions before creating a ZIP.
 
@@ -23,13 +25,13 @@ Hoarder is the existing Minmatar gas hauler and is not modified or counted among
 
 ## Compatibility
 
-**EveJS 261028.1**, the Launcher's **Native** backend, and **EVE client build 3396210**.
+**EveJS 261028.1 and 261108.1**, the Launcher's **Native** backend, and **EVE client build 3396210**.
 
 Includes the headless GamePort login fix from 0.4.2, including WC support. The EVE client receives the custom ship catalog during login. **Python 3.11 or newer** is required to run the optional market setup scripts.
 
 ## Installation
 
-1. Download [EveJS-EmpireSpecializedHaulers-0.5.3.zip](https://github.com/Delta007a/empire-specialized-haulers/releases/download/v0.5.3/EveJS-EmpireSpecializedHaulers-0.5.3.zip).
+1. Get the installation ZIP for your server version from [Releases](https://github.com/Delta007a/empire-specialized-haulers/releases) or build it locally as described below.
 2. Open **Launcher → Mods → Add ZIP** and select the downloaded file.
 3. Enable **Empire Specialized Haulers**.
 4. Restart the **Game server** and start a fresh EVE client.
@@ -77,7 +79,7 @@ The `main` branch contains the runtime code and all **185 visual resources** use
 
 The installation ZIP includes all runtime files, visual resources, market tools and guides. In the repository and an enabled installation the loader is named `loader.js`; the installation ZIP uses `loader.js.disabled` so it can be enabled through the Launcher.
 
-For Launcher installation, use the named **EveJS-EmpireSpecializedHaulers-0.5.3.zip** release asset. GitHub's automatic **Source code (zip)** and **Source code (tar.gz)** downloads are repository snapshots that also include development files.
+For Launcher installation, use the named **EveJS-EmpireSpecializedHaulers-0.5.4.zip** installation archive. GitHub's automatic **Source code (zip)** and **Source code (tar.gz)** downloads are repository snapshots that also include development files.
 
 ## Build the installation ZIP
 
@@ -87,7 +89,7 @@ With Python 3, run from a checkout of `main`:
 python tools/build-local-package.py .
 ```
 
-All required visual resources are included in the repository. The builder verifies their sizes and SHA-256 hashes against `visual-resources.json` and writes `dist/EveJS-EmpireSpecializedHaulers-0.5.3.zip` with the market scripts, guides and changelog.
+All required visual resources are included in the repository. The builder verifies their sizes and SHA-256 hashes against `visual-resources.json` and writes `dist/EveJS-EmpireSpecializedHaulers-0.5.4.zip` with the market scripts, guides and changelog.
 
 ## Validation
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.4
+
+- Added Native support for EveJS 261108.1 alongside 261028.1.
+- Recognize the new signed-function tuple and preserve its numeric Placebo signature value during catalog delivery.
+- Use the Launcher compatibility metadata as the server version list at startup.
+
 ## 0.5.3
 
 - Fixed the 0.5.2 startup failure: `fleet.json` still declared 0.5.1 while the Launcher metadata and visual manifest declared 0.5.2. All three now declare 0.5.3.

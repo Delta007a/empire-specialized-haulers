@@ -5,7 +5,7 @@ const {createHash, randomBytes} = require("node:crypto");
 const SYMBOL = "evejs.empireSpecializedHaulers.login";
 const OWNER = 'globalThis[Symbol.for("' + SYMBOL + '")]';
 const NATIVE_CALL = "buildTidiSignedFunc(this.clientId)";
-const SEND = /^([ \t]*)\[(.*), false\], \/\/ func tuple: \[marshaled_code, verification\](\r?)$/m;
+const SEND = /^([ \t]*)\[(.*buildTidiSignedFunc\(this\.clientId\).*), (?:false|0)\],(?: \/\/ func tuple: \[marshaled_code, verification\])?(\r?)$/m;
 const CALL_PREFIXES = [
   '((packet) => globalThis[Symbol.for("evejs.ourMods.privateFittingRuntime")]?.compose(packet) ?? packet)(',
   '((packet) => globalThis[Symbol.for("evejs.moonOreAnomalies.transientNames")]?.compose(this.socket, packet) ?? packet)(',
@@ -14,7 +14,10 @@ const RESULT = "  _handleFuncResult(decoded) {";
 const MAX = 256 * 1024;
 const FLEET_SIZE = require("./fleet.json").ships.length;
 const READY = `CATALOG_READY ships=${FLEET_SIZE} blueprintTypes=${FLEET_SIZE}`;
-const CORE_HASH = "c84cffe20c00cf075a97daa31ca53c435af4f14c814e46d828760dbbb55fb566";
+const CORE_HASHES = new Set([
+  "c84cffe20c00cf075a97daa31ca53c435af4f14c814e46d828760dbbb55fb566", // 261028.1
+  "5e6d7445213c89c8ad58d58ace38ac1f08d6ebfb40f7ef7c4a2491626a8dab15", // 261108.1
+]);
 const normal = value => value.replaceAll("\r\n", "\n");
 const sha = value => createHash("sha256").update(value).digest("hex");
 
@@ -53,7 +56,7 @@ function inspectCall(source) {
 function inspectTails(baseline, incoming) {
   baseline = normal(baseline);
   incoming = normal(incoming);
-  demand(sha(baseline) === CORE_HASH, "native login source changed");
+  demand(CORE_HASHES.has(sha(baseline)), "native login source changed");
   const {match} = inspectCall(incoming);
   incoming = incoming.replace(match[0], match[0].replace(match[2], NATIVE_CALL));
   demand(incoming.startsWith(baseline), "native login body or insertion seam changed");

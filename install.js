@@ -71,7 +71,9 @@ function install(root,modRoot,moduleHost=Module) {
   requireReady(!globalThis[KEY] && !globalThis[CANARY],"duplicate catalog owner");
   requireReady(!fs.existsSync(path.join(root,"mods/tayra-client-canary/loader.js")),
     "disable Tayra Client Canary before enabling the family");
-  requireReady(read(path.join(root,"server/package.json")).version==="261028.1","unsupported server version");
+  const serverVersion = read(path.join(root,"server/package.json")).version;
+  const {evejsVersions} = read(path.join(modRoot,"evejs-launcher.mod.json")).compatibility;
+  requireReady(evejsVersions.includes(serverVersion), "unsupported server version " + serverVersion);
   const runtimeSrc = path.join(root,"server/src");
   const handshakeFile = path.join(runtimeSrc,HANDSHAKE);
   const handshake = fs.readFileSync(handshakeFile,"utf8");
