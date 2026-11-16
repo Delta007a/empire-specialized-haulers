@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.5
+
+- Added Native support for EveJS 261115.2 on EVE client build 3396210.
+- Preserve the account-role argument used by EveJS to deliver its Server Health window to staff.
+
 ## 0.5.4
 
 - Added Native support for EveJS 261108.1 alongside 261028.1.

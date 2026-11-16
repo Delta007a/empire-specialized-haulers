@@ -42,7 +42,12 @@ test("native login reaches ACK with empty, failed or successful catalog output",
   new vm.Script(patched, {filename});
   assert(!patched.includes("Empire Haulers client catalog unavailable"));
   const authentication = source => source.slice(source.indexOf("  _handleAuthentication(decoded) {"), source.indexOf("  _handleFuncResult(decoded) {"));
-  assert.equal(authentication(patched).replace('globalThis[Symbol.for("' + SYMBOL + '")].compose(this, buildTidiSignedFunc(this.clientId))', "buildTidiSignedFunc(this.clientId)"), authentication(native));
+  const originalAuth = authentication(native);
+  const originalCall = originalAuth.match(/^[ \t]*\[(buildTidiSignedFunc\(.*\)), (?:false|0)\],/m)?.[1];
+  assert(originalCall);
+  const wrappedCall = 'globalThis[Symbol.for("' + SYMBOL + '")].compose(this, ' + originalCall + ')';
+  assert(authentication(patched).includes(wrappedCall));
+  assert.equal(authentication(patched).replace(wrappedCall, originalCall), originalAuth);
 
   const start = patched.indexOf("  _handleFuncResult(decoded) {");
   const end = patched.indexOf("\n  _decrypt(data) {", start);
