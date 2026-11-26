@@ -62,7 +62,7 @@ function getStatic(dataDir) {
   ]));
 }
 
-function makeCatalog(tables) {
+function makeCatalog(tables, clientBuild = fleet.clientBuild) {
   requireFleet(fleet.ships.length === 12, "fleet size");
   const ids = ownedIDs();
   for (const name of ["types", "graphics", "effects"]) checkIDs(ids[name], name);
@@ -75,7 +75,7 @@ function makeCatalog(tables) {
     const rows = payload?.[key];
     requireFleet(rows && typeof rows === "object", table + " missing " + key);
     if (table !== "shipInsurancePrices") {
-      requireFleet(payload.source?.buildNumber === fleet.clientBuild, table + " SDE mismatch");
+      requireFleet(payload.source?.buildNumber === clientBuild, table + " SDE mismatch");
     }
     additions[table] = Array.isArray(rows) ? [] : {};
     if (table !== "industryBlueprints") {
@@ -212,7 +212,7 @@ function makeCatalog(tables) {
     requireFleet(before && typeof before === "object" &&
       Array.isArray(before) === Array.isArray(additions[table]), table + " runtime shape mismatch");
     if (table !== "shipInsurancePrices") {
-      requireFleet(payload.source?.buildNumber === fleet.clientBuild, table + " runtime SDE mismatch");
+      requireFleet(payload.source?.buildNumber === clientBuild, table + " runtime SDE mismatch");
     }
     if (table === "industryBlueprints") {
       const {blueprintDefinitionsByTypeID: byID, blueprintTypeIDsByProductTypeID: byProduct,

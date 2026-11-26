@@ -2,9 +2,9 @@
 
 Twelve T1 specialized haulers across **Amarr, Caldari, Gallente and Minmatar**, with dedicated holds for ore, minerals and ice, planetary cargo, or harvested gases. Each custom ship has its own model, inventory and Ship Tree icons, T1 blueprint, and native Mastery profile inherited from its base hull.
 
-**Version 0.5.5** · [Changelog](CHANGELOG.md) · [Releases](https://github.com/Delta007a/empire-specialized-haulers/releases)
+**Version 0.5.6** · [Changelog](CHANGELOG.md) · [Releases](https://github.com/Delta007a/empire-specialized-haulers/releases)
 
-**New in 0.5.5** · Native support for EveJS 261115.2. The login hook preserves the signature value and passes through the account role used for the staff Server Health window.
+**New in 0.5.6** · Native support for EveJS 261125.3 and EVE client build 3724492. The catalog wraps the signed function from the assembled login challenge and retains the native verification field.
 
 **New in 0.5.3:** Fixes the `visual resource version mismatch` startup failure in the 0.5.2 package. All release metadata now agrees, and the package builder rejects inconsistent versions before creating a ZIP.
 
@@ -25,7 +25,10 @@ Hoarder is the existing Minmatar gas hauler and is not modified or counted among
 
 ## Compatibility
 
-**EveJS 261028.1, 261108.1 and 261115.2**, the Launcher's **Native** backend, and **EVE client build 3396210**.
+| EveJS version | EVE client build | Launcher backend |
+| --- | --- | --- |
+| 261125.3 | 3724492 | Native |
+| 261028.1, 261108.1, 261115.2 | 3396210 | Native |
 
 Includes the headless GamePort login fix from 0.4.2, including WC support. The EVE client receives the custom ship catalog during login. **Python 3.11 or newer** is required to run the optional market setup scripts.
 
@@ -79,7 +82,7 @@ The `main` branch contains the runtime code and all **185 visual resources** use
 
 The installation ZIP includes all runtime files, visual resources, market tools and guides. In the repository and an enabled installation the loader is named `loader.js`; the installation ZIP uses `loader.js.disabled` so it can be enabled through the Launcher.
 
-For Launcher installation, use the named **EveJS-EmpireSpecializedHaulers-0.5.5.zip** installation archive. GitHub's automatic **Source code (zip)** and **Source code (tar.gz)** downloads are repository snapshots that also include development files.
+For Launcher installation, use the named **EveJS-EmpireSpecializedHaulers-0.5.6.zip** installation archive. GitHub's automatic **Source code (zip)** and **Source code (tar.gz)** downloads are repository snapshots that also include development files.
 
 ## Build the installation ZIP
 
@@ -89,7 +92,7 @@ With Python 3, run from a checkout of `main`:
 python tools/build-local-package.py .
 ```
 
-All required visual resources are included in the repository. The builder verifies their sizes and SHA-256 hashes against `visual-resources.json` and writes `dist/EveJS-EmpireSpecializedHaulers-0.5.5.zip` with the market scripts, guides and changelog.
+All required visual resources are included in the repository. The builder verifies their sizes and SHA-256 hashes against `visual-resources.json` and writes `dist/EveJS-EmpireSpecializedHaulers-0.5.6.zip` with the market scripts, guides and changelog.
 
 ## Validation
 
@@ -99,4 +102,4 @@ Tithe’s turret seats in 0.5.2 passed native-locator readback and stock-weapon 
 
 The market utility passed 29 offline tests, including both Windows launchers in a relocated server folder, Jita-only placement, both order sides, Epithal gas pricing, and actual Gallente NPC ownership for hardcore blueprint placement. The utility does not start or stop running services.
 
-The server log records `[EmpireHaulers] LOGIN_READY build=3396210 types=24` when the login hook loads. After EVE client login, `[EmpireHaulers] MASTERIES_READY ships=12 levels=5 source=native-stock` confirms Mastery loading. Catalog receipts are diagnostic and do not block native login.
+The server log records `[EmpireHaulers] LOGIN_READY build=3724492 types=24` when the login hook loads. After EVE client login, `[EmpireHaulers] MASTERIES_READY ships=12 levels=5 source=native-stock` confirms Mastery loading. Catalog receipts are diagnostic and do not block native login.

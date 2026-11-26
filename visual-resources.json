@@ -1,6 +1,6 @@
 {
-  "version": "0.5.5",
-  "build": 3396210,
+  "version": "0.5.6",
+  "build": 3724492,
   "roots": {
     "eh40": "art/native",
     "ehico": "art/icons"

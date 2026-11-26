@@ -1,4 +1,4 @@
-# Python 2.7 signed-login bootstrap for EVE 3396210.
+# Python 2.7 signed-login bootstrap for the runtime's EVE client build.
 OWNER_KEY = "_empire_haulers_session_v040"
 MOUNT_KEY = "_empire_haulers_mount_v040"
 PASS = "CATALOG_READY ships=12 blueprintTypes=12"
@@ -375,7 +375,8 @@ def run_family(context,generation):
         manager = context.get("sm",getattr(builtins,"sm",None))
         session = context.get("session",getattr(builtins,"session",None))
         cfg = context.get("cfg",getattr(builtins,"cfg",None))
-        require(int(getattr(boot,"build",0))==3396210,"unsupported client build")
+        bundle=json.loads(zlib.decompress(base64.b64decode(_family_bundle)))
+        require(int(getattr(boot,"build",0))==bundle["catalog"]["fleet"]["clientBuild"],"unsupported client build")
         require(manager is not None and session is not None and cfg is not None and not session.charid,
                 "login context missing or character already active")
         require(not hasattr(builtins,"_evejs_tayra_canary_owner_v1"),"legacy Wolverine session still active close client")
@@ -385,7 +386,6 @@ def run_family(context,generation):
         owner = SessionCatalog(builtins,manager,session,generation,evetypes,dogma)
         setattr(builtins,OWNER_KEY,owner)
         owner.subscribe()
-        bundle=json.loads(zlib.decompress(base64.b64decode(_family_bundle)))
         phase = "resource mount"
         mount_visuals(owner,blue,bundle["visuals"])
         phase = "effect compiler"

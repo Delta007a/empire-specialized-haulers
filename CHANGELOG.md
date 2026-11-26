@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.6
+
+- Added Native support for EveJS 261125.3 and EVE client build 3724492.
+- Deliver the ship catalog through the assembled native login challenge so other login payloads can compose in either load order.
+
 ## 0.5.5
 
 - Added Native support for EveJS 261115.2 on EVE client build 3396210.

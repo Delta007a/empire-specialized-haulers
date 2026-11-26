@@ -35,7 +35,6 @@ PACKAGE_FILES = (
     "fleet.json",
     "install.js",
     "loader.js",
-    "login-contract.json",
     "login-envelope.js",
     "visual-resources.json",
 )

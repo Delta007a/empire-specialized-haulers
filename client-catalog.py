@@ -1,4 +1,4 @@
-# ASCII source for EVE build 3396210's Python 2.7.
+# ASCII source for EVE's Python 2.7.
 # Additive data and rollback mechanics shared by the native ABI verifier and loader.
 class CatalogError(Exception):
     pass
@@ -219,7 +219,7 @@ HOLD_TEXT = {
 
 def build_catalog(payload, native, attribute, effect_ref):
     fleet = payload["fleet"]
-    assert fleet["clientBuild"] == 3396210
+    require(fleet["clientBuild"] in (3396210, 3724492), "unsupported client catalog build")
     additions = payload["additions"]
     server_types = dict((row["typeID"], row) for row in additions["itemTypes"])
     owned = dict((key, {}) for key in ("types", "typedogma", "requiredskillsfortypes", "dogmaeffects", "graphicids"))
