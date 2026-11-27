@@ -11,8 +11,24 @@ const {SYMBOL, attachDelivery, createDelivery} = require("./login-envelope");
 const OWNER = 'globalThis[Symbol.for("' + SYMBOL + '")]';
 const KEY = Symbol.for(SYMBOL);
 const HANDSHAKE = "network/tcp/handshake.js";
+const MARSHAL = "network/tcp/utils/marshal.js";
 const canonical = name => path.resolve(name).toLowerCase();
 const hash = data => createHash("sha256").update(data).digest("hex");
+const sourceHash = file => hash(fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n"));
+
+// The catalog wraps the encoded native challenge, so both its producer and
+// the marshal codec must match a reviewed contract for the selected client.
+const CURRENT_HANDSHAKE = "7aaa72247049b38d3f656f3b2c602877a8bcf0d9ff0af68f1795ff1327565ba7";
+const CURRENT_MARSHAL = "1386060fc712b3a23b7968da51c51955f76341b42e2e162502e03a050f267df3";
+const LOGIN_CONTRACTS = new Map([
+  [3396210, new Map([
+    ["c84cffe20c00cf075a97daa31ca53c435af4f14c814e46d828760dbbb55fb566",
+      "d78d3c7738b24ffa1315e1cc025b227a551fbeab251e36b0a25e70320c899092"],
+    ["5e6d7445213c89c8ad58d58ace38ac1f08d6ebfb40f7ef7c4a2491626a8dab15", CURRENT_MARSHAL],
+    [CURRENT_HANDSHAKE, CURRENT_MARSHAL],
+  ])],
+  [fleet.clientBuild, new Map([[CURRENT_HANDSHAKE, CURRENT_MARSHAL]])],
+]);
 
 function requireReady(condition, message) {
   if (!condition) throw new Error("[EmpireHaulers] " + message);
@@ -68,16 +84,17 @@ function buildProgram(modRoot,catalog,visuals,clientBuild=fleet.clientBuild) {
 
 function install(root,modRoot,moduleHost=Module) {
   requireReady(!globalThis[KEY],"duplicate catalog owner");
-  const serverVersion = read(path.join(root,"server/package.json")).version;
-  const {evejsVersions} = read(path.join(modRoot,"evejs-launcher.mod.json")).compatibility;
-  requireReady(evejsVersions.includes(serverVersion), "unsupported server version " + serverVersion);
   const runtimeSrc = path.join(root,"server/src");
   const {CLIENT_COMPATIBILITY_PROFILE} = require(path.join(runtimeSrc,"network/protocolProfile"));
-  const clientBuild = CLIENT_COMPATIBILITY_PROFILE.clientBuild;
-  requireReady(clientBuild === (serverVersion === "261125.3" ? fleet.clientBuild : 3396210),
-    "unexpected client build " + clientBuild + " for EveJS " + serverVersion);
+  const clientBuild = CLIENT_COMPATIBILITY_PROFILE?.clientBuild;
+  const login = LOGIN_CONTRACTS.get(clientBuild);
+  requireReady(login, "unsupported client build " + clientBuild);
+  const nativeHandshake = sourceHash(path.join(runtimeSrc,HANDSHAKE));
+  const nativeMarshal = login.get(nativeHandshake);
+  requireReady(nativeMarshal, "unreviewed login handshake for client build " + clientBuild);
+  requireReady(nativeMarshal === sourceHash(path.join(runtimeSrc,MARSHAL)), "unreviewed login marshal codec");
   const handshakeFile = canonical(path.join(runtimeSrc,HANDSHAKE));
-  const codec = require(path.join(runtimeSrc,"network/tcp/utils/marshal"));
+  const codec = require(path.join(runtimeSrc,MARSHAL));
   const seams = new Map();
   for (const [name,transform] of Object.entries(SEAMS)) {
     const file = path.join(runtimeSrc,name);

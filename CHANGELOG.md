@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.7
+
+- Verified EveJS 261126.2 with EVE client build 3724492 offline.
+- Validate the server's client build and native login source and codec before registering the catalog hooks.
+
 ## 0.5.6
 
 - Added Native support for EveJS 261125.3 and EVE client build 3724492.
